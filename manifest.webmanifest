@@ -1,0 +1,17 @@
+{
+  "name": "CBC x SOLved",
+  "short_name": "CBC x SOLved",
+  "description": "Plataforma de estudio y clases del CBC",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f5fffd",
+  "theme_color": "#0f9f9a",
+  "icons": [
+    {
+      "src": "./sun.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
