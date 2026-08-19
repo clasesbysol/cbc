@@ -8,6 +8,12 @@
     {"file":"unit-01/phases-components.svg","source":"Original SOLved","author":"CBC x SOLved","license":"Propio","unit":1,"chapter":"Sistemas materiales"},
     {"file":"unit-01/substances-molecules.svg","source":"Original SOLved","author":"CBC x SOLved","license":"Propio","unit":1,"chapter":"Sustancias y fórmulas"},
     {"file":"unit-01/separation-methods.svg","source":"Original SOLved","author":"CBC x SOLved","license":"Propio","unit":1,"chapter":"Separaciones"},
-    {"file":"unit-01/composition-percent.svg","source":"Original SOLved","author":"CBC x SOLved","license":"Propio","unit":1,"chapter":"Composición centesimal"}
+    {"file":"unit-01/composition-percent.svg","source":"Original SOLved","author":"CBC x SOLved","license":"Propio","unit":1,"chapter":"Composición centesimal"},
+    {"file":"unit-02/atomic-models.svg","source":"Original SOLved","author":"CBC x SOLved","license":"Propio","unit":2,"chapter":"Modelos atómicos"},
+    {"file":"unit-02/nuclear-notation.svg","source":"Original SOLved","author":"CBC x SOLved","license":"Propio","unit":2,"chapter":"Notación nuclear"},
+    {"file":"unit-02/bohr-spectrum.svg","source":"Original SOLved","author":"CBC x SOLved","license":"Propio","unit":2,"chapter":"Bohr y luz"},
+    {"file":"unit-02/orbitals.svg","source":"Original SOLved","author":"CBC x SOLved","license":"Propio","unit":2,"chapter":"Orbitales"},
+    {"file":"unit-02/electron-configuration.svg","source":"Original SOLved","author":"CBC x SOLved","license":"Propio","unit":2,"chapter":"Configuración electrónica"},
+    {"file":"unit-02/periodic-trends.svg","source":"Original SOLved","author":"CBC x SOLved","license":"Propio","unit":2,"chapter":"Propiedades periódicas"}
   ]
 }
