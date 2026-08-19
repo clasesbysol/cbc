@@ -1,6 +1,6 @@
 {
-  "version": 1,
-  "policy": "Diagramas SVG originales creados para CBC x SOLved",
+  "version": 2,
+  "policy": "Recursos propios y recursos externos reutilizables con fuente y licencia verificadas",
   "items": [
     {"file":"unit-01/matter-models.svg","source":"Original SOLved","author":"CBC x SOLved","license":"Propio","unit":1,"chapter":"Materia y modelos"},
     {"file":"unit-01/states-particles.svg","source":"Original SOLved","author":"CBC x SOLved","license":"Propio","unit":1,"chapter":"Estados de agregación"},
@@ -14,6 +14,9 @@
     {"file":"unit-02/bohr-spectrum.svg","source":"Original SOLved","author":"CBC x SOLved","license":"Propio","unit":2,"chapter":"Bohr y luz"},
     {"file":"unit-02/orbitals.svg","source":"Original SOLved","author":"CBC x SOLved","license":"Propio","unit":2,"chapter":"Orbitales"},
     {"file":"unit-02/electron-configuration.svg","source":"Original SOLved","author":"CBC x SOLved","license":"Propio","unit":2,"chapter":"Configuración electrónica"},
-    {"file":"unit-02/periodic-trends.svg","source":"Original SOLved","author":"CBC x SOLved","license":"Propio","unit":2,"chapter":"Propiedades periódicas"}
+    {"file":"unit-02/periodic-trends.svg","source":"Original SOLved","author":"CBC x SOLved","license":"Propio","unit":2,"chapter":"Propiedades periódicas"},
+    {"file":"unit-02/rutherford-experiment-wikimedia.svg","source":"https://commons.wikimedia.org/wiki/File:Rutherford_gold_foil_experiment_results.svg","author":"Fastfission","license":"Dominio público / libre reutilización indicada por el autor","unit":2,"chapter":"Modelos atómicos"},
+    {"file":"unit-02/hydrogen-spectrum-wikimedia.png","source":"https://commons.wikimedia.org/wiki/File:Hydrogen_spectrum_visible.png","author":"McZusatz","license":"CC0 1.0","unit":2,"chapter":"Bohr y luz"},
+    {"file":"unit-02/orbital-clouds-wikimedia.png","source":"https://commons.wikimedia.org/wiki/File:Atomic-orbital-clouds_spd_m0.png","author":"Geek3","license":"CC BY-SA 4.0","unit":2,"chapter":"Orbitales"}
   ]
 }
