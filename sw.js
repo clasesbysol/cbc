@@ -1,4 +1,4 @@
-const CACHE='cbc-x-solved-v0.3.0';
+const CACHE='cbc-x-solved-v0.4.0';
 const CORE=['./','./index.html','./styles-v2.css','./app.js','./config.js','./manifest.webmanifest','./sun.svg'];
 
 self.addEventListener('install',event=>event.waitUntil(
