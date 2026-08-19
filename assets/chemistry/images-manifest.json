@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "policy": "Diagramas SVG originales creados para CBC x SOLved",
+  "items": [
+    {"file":"unit-01/matter-models.svg","source":"Original SOLved","author":"CBC x SOLved","license":"Propio","unit":1,"chapter":"Materia y modelos"},
+    {"file":"unit-01/states-particles.svg","source":"Original SOLved","author":"CBC x SOLved","license":"Propio","unit":1,"chapter":"Estados de agregación"},
+    {"file":"unit-01/density-lab.svg","source":"Original SOLved","author":"CBC x SOLved","license":"Propio","unit":1,"chapter":"Propiedades y densidad"},
+    {"file":"unit-01/phases-components.svg","source":"Original SOLved","author":"CBC x SOLved","license":"Propio","unit":1,"chapter":"Sistemas materiales"},
+    {"file":"unit-01/substances-molecules.svg","source":"Original SOLved","author":"CBC x SOLved","license":"Propio","unit":1,"chapter":"Sustancias y fórmulas"},
+    {"file":"unit-01/separation-methods.svg","source":"Original SOLved","author":"CBC x SOLved","license":"Propio","unit":1,"chapter":"Separaciones"},
+    {"file":"unit-01/composition-percent.svg","source":"Original SOLved","author":"CBC x SOLved","license":"Propio","unit":1,"chapter":"Composición centesimal"}
+  ]
+}

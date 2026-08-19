@@ -1,5 +1,5 @@
-const CACHE='cbc-x-solved-v0.4.0';
-const CORE=['./','./index.html','./styles-v2.css','./app.js','./config.js','./manifest.webmanifest','./sun.svg'];
+const CACHE='cbc-x-solved-v0.5.0';
+const CORE=['./','./index.html','./styles-v2.css','./app.js','./config.js','./manifest.webmanifest','./sun.svg','./assets/chemistry/unit-01/matter-models.svg','./assets/chemistry/unit-01/states-particles.svg','./assets/chemistry/unit-01/density-lab.svg','./assets/chemistry/unit-01/phases-components.svg','./assets/chemistry/unit-01/substances-molecules.svg','./assets/chemistry/unit-01/separation-methods.svg','./assets/chemistry/unit-01/composition-percent.svg'];
 
 self.addEventListener('install',event=>event.waitUntil(
   caches.open(CACHE).then(cache=>cache.addAll(CORE)).then(()=>self.skipWaiting())
