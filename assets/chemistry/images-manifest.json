@@ -17,6 +17,9 @@
     {"file":"unit-02/periodic-trends.svg","source":"Original SOLved","author":"CBC x SOLved","license":"Propio","unit":2,"chapter":"Propiedades periódicas"},
     {"file":"unit-02/rutherford-experiment-wikimedia.svg","source":"https://commons.wikimedia.org/wiki/File:Rutherford_gold_foil_experiment_results.svg","author":"Fastfission","license":"Dominio público / libre reutilización indicada por el autor","unit":2,"chapter":"Modelos atómicos"},
     {"file":"unit-02/hydrogen-spectrum-wikimedia.png","source":"https://commons.wikimedia.org/wiki/File:Hydrogen_spectrum_visible.png","author":"McZusatz","license":"CC0 1.0","unit":2,"chapter":"Bohr y luz"},
-    {"file":"unit-02/orbital-clouds-wikimedia.png","source":"https://commons.wikimedia.org/wiki/File:Atomic-orbital-clouds_spd_m0.png","author":"Geek3","license":"CC BY-SA 4.0","unit":2,"chapter":"Orbitales"}
+    {"file":"unit-02/orbital-clouds-wikimedia.png","source":"https://commons.wikimedia.org/wiki/File:Atomic-orbital-clouds_spd_m0.png","author":"Geek3","license":"CC BY-SA 4.0","unit":2,"chapter":"Orbitales"},
+    {"file":"history/jj-thomson.jpg","source":"https://commons.wikimedia.org/wiki/File:JJ_Thomson.jpg","author":"The Electrician (1896)","license":"Dominio público","unit":"Historia","chapter":"Thomson"},
+    {"file":"history/ernest-rutherford.jpg","source":"https://commons.wikimedia.org/wiki/File:Prof._Ernest_Rutherford,_portrait_LCCN2014683386.jpg","author":"George Grantham Bain Collection / Library of Congress","license":"Dominio público; sin restricciones conocidas","unit":"Historia","chapter":"Rutherford"},
+    {"file":"history/niels-bohr.jpg","source":"https://commons.wikimedia.org/wiki/File:Niels_Bohr.jpg","author":"Autor desconocido","license":"Dominio público","unit":"Historia","chapter":"Bohr"}
   ]
 }
