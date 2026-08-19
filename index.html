@@ -8,15 +8,39 @@
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" href="./sun.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="./sun.svg" />
-  <link rel="stylesheet" href="./styles-v2.css?v=2.1" />
+  <link rel="stylesheet" href="./styles-v2.css?v=2.2" />
   <title>CBC x SOLved</title>
 </head>
 <body>
   <div id="app" class="loading"><img src="./sun.svg" alt="" /> Cargando CBC x SOLved…</div>
-  <script src="./config.js"></script>
-  <script src="./app-core.js?v=2.1"></script>
-  <script src="./app-data.js?v=2.1"></script>
-  <script src="./app-ui.js?v=2.1"></script>
-  <script src="./app-bind.js?v=2.1"></script>
+
+  <script>
+    window.__cbcBootError = function(message){
+      var el=document.getElementById('app');
+      if(!el) return;
+      el.className='';
+      el.innerHTML='<main style="min-height:100vh;display:grid;place-items:center;padding:24px;font-family:system-ui,sans-serif;background:#f7fbfb;color:#173232"><section style="max-width:560px;background:white;border:1px solid #dceaea;border-radius:22px;padding:28px;box-shadow:0 18px 50px rgba(15,80,80,.08)"><div style="font-size:34px">☀️</div><h1 style="margin:10px 0 8px">CBC x SOLved</h1><p style="line-height:1.5">La app encontró un problema al iniciar.</p><p style="font-size:13px;opacity:.7;word-break:break-word">'+String(message||'Error desconocido').replace(/[&<>]/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]})+'</p><button onclick="location.reload()" style="margin-top:12px;border:0;border-radius:12px;padding:12px 18px;background:#0f9f9a;color:white;font-weight:700;cursor:pointer">Reintentar</button></section></main>';
+    };
+    window.addEventListener('error',function(e){
+      if(document.getElementById('app') && document.getElementById('app').classList.contains('loading')){
+        window.__cbcBootError((e.message||'Error de JavaScript')+(e.filename?' · '+e.filename.split('/').pop()+':'+e.lineno:''));
+      }
+    });
+    window.addEventListener('unhandledrejection',function(e){
+      if(document.getElementById('app') && document.getElementById('app').classList.contains('loading')){
+        window.__cbcBootError(e.reason && e.reason.message ? e.reason.message : 'Error de conexión al iniciar');
+      }
+    });
+    window.setTimeout(function(){
+      var el=document.getElementById('app');
+      if(el && el.classList.contains('loading')) window.__cbcBootError('El inicio tardó demasiado. Probá Reintentar.');
+    },12000);
+  </script>
+
+  <script src="./config.js?v=2.2"></script>
+  <script src="./app-core.js?v=2.2"></script>
+  <script src="./app-data.js?v=2.2"></script>
+  <script src="./app-ui.js?v=2.2"></script>
+  <script src="./app-bind.js?v=2.2"></script>
 </body>
 </html>
