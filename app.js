@@ -1,56 +1,176 @@
+// CBC x SOLved — módulo único de aplicación.
+// La configuración pública permanece en window.CBCLASES_CONFIG; el resto no expone globals.
 const CFG=window.CBCLASES_CONFIG||{};
 const UNITS=[...Array(13)].map((_,i)=>i+1);
-let sb=null,session=null,guest=localStorage.getItem('cbc-mode')==='guest',view='subjects',unit=1,side=false,search=false,theme=false,installPrompt=null,msg='';
-let access={max_unit:1,active:true,role:'student'},rows=[];
+let sb=null,session=null,guest=localStorage.getItem('cbc-mode')==='guest';
+let view='subjects',unit=1,side=false,searchOpen=false,themeOpen=false,msg='',installPrompt=null;
+let profile=null,myGrants=[],users=[],allGrants=[],unit1Sections=[],editing=null,durationMode='1m',customDate='';
 let accent=localStorage.getItem('cbc-accent')||'#0f9f9a';
-document.documentElement.style.setProperty('--accent',accent);
+let mode=localStorage.getItem('cbc-theme')||'light';
 const app=document.querySelector('#app');
-const configured=()=>Boolean(CFG.supabaseUrl&&CFG.supabaseAnonKey);
 const mail=()=>String(session?.user?.email||'').toLowerCase();
-const isAdmin=()=>mail()&&mail()===String(CFG.adminEmail||'').toLowerCase();
-const maxUnit=()=>guest?1:isAdmin()?13:(access.active?Number(access.max_unit||1):0);
+const isAdmin=()=>mail()===String(CFG.adminEmail||'').toLowerCase();
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtDate=v=>v?new Intl.DateTimeFormat('es-AR',{dateStyle:'medium'}).format(new Date(v)):'Sin vencimiento';
+function applyTheme(){document.documentElement.dataset.theme=mode;document.documentElement.style.setProperty('--accent',accent)}
+applyTheme();
+
+async function loadOwn(){
+  if(!sb||!session)return;
+  if(isAdmin()){profile={email:mail(),active:true,role:'admin',access_starts_at:new Date().toISOString(),access_expires_at:null};myGrants=[];return;}
+  profile=(await sb.from('access_profiles').select('*').eq('email',mail()).maybeSingle()).data||null;
+  myGrants=(await sb.from('access_grants').select('*').eq('email',mail())).data||[];
+}
+function currentAccess(){if(isAdmin())return true;if(!profile||!profile.active)return false;const now=Date.now(),s=new Date(profile.access_starts_at).getTime(),e=profile.access_expires_at?new Date(profile.access_expires_at).getTime():Infinity;return now>=s&&now<=e}
+function grantsFor(u){return myGrants.filter(g=>g.subject==='chemistry'&&Number(g.unit_no)===u)}
+function canUnit(u){return u===1||isAdmin()||(currentAccess()&&grantsFor(u).length>0)}
+function canSection(u,s){if(u===1||isAdmin())return true;if(!currentAccess())return false;const gs=grantsFor(u);return gs.some(g=>g.grant_type==='unit'&&g.grant_key==='*')||gs.some(g=>g.grant_type===s.type&&g.grant_key===s.key)}
+async function google(){if(!sb)return;const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:`${location.origin}${location.pathname}`}});if(error){msg=error.message;render()}}
+async function logout(){if(sb&&session)await sb.auth.signOut();session=null;guest=false;profile=null;myGrants=[];localStorage.removeItem('cbc-mode');view='subjects';render()}
+async function loadAdmin(){if(!sb||!isAdmin())return;users=(await sb.from('access_profiles').select('*').order('email')).data||[];allGrants=(await sb.from('access_grants').select('*')).data||[]}
+
+function expiryFromMode(){if(durationMode==='forever')return null;let d=new Date();if(durationMode==='custom'){if(!customDate)return undefined;d=new Date(`${customDate}T23:59:59`);return d.toISOString()}const months=Number(durationMode[0]);d.setMonth(d.getMonth()+months);d.setHours(23,59,59,999);return d.toISOString()}
+function draftGrantsFromForm(){const out=[];document.querySelectorAll('[data-full-unit]:checked').forEach(x=>out.push({unit_no:Number(x.dataset.fullUnit),grant_type:'unit',grant_key:'*'}));document.querySelectorAll('[data-grant-section]:checked').forEach(x=>{const [u,t,k]=x.dataset.grantSection.split('|');if(!document.querySelector(`[data-full-unit="${u}"]`)?.checked)out.push({unit_no:Number(u),grant_type:t,grant_key:k})});return out}
+async function saveAccess(){
+  const email=document.querySelector('#accessEmail')?.value.trim().toLowerCase();if(!email)return;
+  const expiry=expiryFromMode();if(durationMode==='custom'&&expiry===undefined){msg='Elegí una fecha de vencimiento.';render();return}
+  const grants=draftGrantsFromForm();
+  const starts=editing?.email===email&&durationMode==='keep'?editing.access_starts_at:new Date().toISOString();
+  const finalExpiry=durationMode==='keep'?editing?.access_expires_at??null:expiry;
+  const {error}=await sb.from('access_profiles').upsert({email,active:true,role:editing?.role==='admin'?'admin':'student',access_starts_at:starts,access_expires_at:finalExpiry},{onConflict:'email'});
+  if(error){msg=error.message;render();return}
+  await sb.from('access_grants').delete().eq('email',email);
+  if(grants.length){const rows=grants.map(g=>({email,subject:'chemistry',...g}));const e=(await sb.from('access_grants').insert(rows)).error;if(e){msg=e.message;render();return}}
+  editing=null;durationMode='1m';customDate='';await loadAdmin();render();
+}
+async function toggleUser(email,active){await sb.from('access_profiles').update({active}).eq('email',email);await loadAdmin();render()}
+function editUser(email){editing=users.find(u=>u.email===email)||null;durationMode='keep';customDate='';render();setTimeout(()=>document.querySelector('#accessEmail')?.scrollIntoView({behavior:'smooth',block:'center'}),50)}
+function resetForm(){editing=null;durationMode='1m';customDate='';render()}
+function userGrants(email){return allGrants.filter(g=>g.email===email)}
+function hasDraftFull(u){return editing&&userGrants(editing.email).some(g=>Number(g.unit_no)===u&&g.grant_type==='unit'&&g.grant_key==='*')}
+function hasDraftSection(u,t,k){return editing&&userGrants(editing.email).some(g=>Number(g.unit_no)===u&&g.grant_type===t&&g.grant_key===k)}
+
+async function loadUnit1(){
+  if(!sb){unit1Sections=[];return;}
+  const {data,error}=await sb.from('course_sections').select('section_key,section_type,title,sort_order,body_html,is_public').eq('subject','chemistry').eq('unit_no',1).order('sort_order');
+  if(error){console.error(error);msg='No pude cargar el contenido de la Unidad 1.';unit1Sections=[];return;}
+  unit1Sections=(data||[]).map(s=>({key:s.section_key,type:s.section_type,title:s.title,order:s.sort_order,html:s.body_html,isPublic:s.is_public}));
+}
+
+function showStartupError(err){
+  console.error(err);
+  msg='Hubo un problema al conectar con el servidor. La app sigue disponible; podés reintentar recargando.';
+  render();
+}
+
+async function hydrateSession(){
+  if(!session)return;
+  try{
+    await loadOwn();
+    render();
+    if(isAdmin()){
+      await loadAdmin();
+      render();
+    }
+  }catch(err){
+    console.error(err);
+    msg='Tu sesión inició correctamente, pero no pude cargar todos tus datos.';
+    render();
+  }
+}
+
+function applySession(next){
+  session=next;
+  if(next){
+    guest=false;
+    localStorage.setItem('cbc-mode','account');
+    if(isAdmin()) view='admin';
+    else if(view==='admin') view='subjects';
+  }else{
+    profile=null;
+    myGrants=[];
+    if(localStorage.getItem('cbc-mode')==='account') localStorage.removeItem('cbc-mode');
+    if(view==='admin') view='subjects';
+  }
+  render();
+  if(next) window.setTimeout(()=>hydrateSession(),0);
+}
 
 async function init(){
- if(configured()){
-  const {createClient}=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
-  sb=createClient(CFG.supabaseUrl,CFG.supabaseAnonKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-  session=(await sb.auth.getSession()).data.session;
-  if(session){guest=false;localStorage.setItem('cbc-mode','account');await loadOwnAccess();}
-  sb.auth.onAuthStateChange(async(_,next)=>{session=next;if(next){guest=false;localStorage.setItem('cbc-mode','account');await loadOwnAccess();}render();});
- }
- render();
-}
-async function loadOwnAccess(){
- if(!sb||!session)return;
- if(isAdmin()){access={max_unit:13,active:true,role:'admin'};return;}
- const {data}=await sb.from('access_profiles').select('email,max_unit,active,role').eq('email',mail()).maybeSingle();
- access=data||{max_unit:1,active:false,role:'student'};
-}
-async function google(){
- if(!configured()||!sb){msg='El ingreso con Gmail queda listo apenas conectemos Supabase. La navegación como invitado ya funciona.';render();return;}
- await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:`${location.origin}${location.pathname}`}});
-}
-async function logout(){if(sb&&session)await sb.auth.signOut();session=null;guest=false;access={max_unit:1,active:true,role:'student'};localStorage.removeItem('cbc-mode');view='subjects';render();}
-async function loadRows(){if(!sb||!isAdmin())return;const {data}=await sb.from('access_profiles').select('email,max_unit,active,role').order('email');rows=data||[];}
-async function addAccess(){const email=document.querySelector('#newEmail')?.value.trim().toLowerCase();const max_unit=Number(document.querySelector('#newMax')?.value||1);if(!email)return;if(!sb){msg='Modo maqueta: conectá Supabase para guardar accesos reales.';rows=[...rows.filter(r=>r.email!==email),{email,max_unit,active:true,role:'student'}];render();return;}await sb.from('access_profiles').upsert({email,max_unit,active:true,role:'student'},{onConflict:'email'});await loadRows();render();}
-async function patchAccess(email,patch){rows=rows.map(r=>r.email===email?{...r,...patch}:r);render();if(sb){await sb.from('access_profiles').update(patch).eq('email',email);await loadRows();render();}}
+  // Nunca bloquear la primera pintura de la interfaz por una consulta de red.
+  render();
 
-function brand(){return `<div class="brand"><img src="./sun.svg" class="brandSun" alt=""><div><b>CBC x SOLved</b><small>Clases y estudio del CBC</small></div></div>`;}
-function welcome(){return `<main class="welcomeShell"><section class="welcomeCard">${brand()}<div class="welcomeCopy"><span class="eyebrow">Tu espacio de estudio del CBC</span><h1>Entrá, elegí materia y estudiá sin vueltas.</h1><p>Química empieza acá. Matemática ya tiene su lugar preparado para después.</p></div><div class="welcomeActions"><button class="primaryButton" data-a="google">G&nbsp;&nbsp;Ingresar con Gmail</button><button class="secondaryButton" data-a="guest">☀️ Ver como invitado</button><button class="ghostButton" data-a="install">↓ Instalar app</button></div>${msg?`<div class="statusNote">${esc(msg)}</div>`:''}<div class="welcomeFine">Después del primer ingreso, la sesión queda guardada en este dispositivo hasta que cierres sesión.</div></section></main>`;}
-function navButton(v,label,icon){return `<button data-v="${v}" class="${view===v||(v==='chemistry'&&view==='unit')?'active':''}"><span>${icon}</span>${label}</button>`;}
-function sidebar(){return `<aside class="sidebar ${side?'open':''}"><div class="sidebarTop">${brand()}<button class="iconButton mobileOnly" data-a="closeSide">×</button></div><nav class="navList">${navButton('subjects','Materias','⌂')}${navButton('chemistry','Química','⚗')}${navButton('math','Matemática','Σ')}${isAdmin()?navButton('admin','Accesos','👤'):''}</nav><div class="unitIndex"><div class="sideLabel">Índice · Química</div>${UNITS.map(u=>`<button data-u="${u}" class="${view==='unit'&&unit===u?'activeUnit':''}"><span>${u}</span><div>Unidad ${u}</div><b>${u>maxUnit()?'🔒':''}</b></button>`).join('')}</div><div class="sidebarBottom"><button data-a="theme">◉ Apariencia</button><button data-a="logout">↪ ${guest?'Salir de invitado':'Cerrar sesión'}</button></div></aside>${side?'<button class="backdrop" data-a="closeSide"></button>':''}`;}
-function top(){const title=view==='subjects'?'Materias':view==='chemistry'?'Química':view==='math'?'Matemática':view==='admin'?'Accesos':`Química · Unidad ${unit}`;const pill=guest?'Invitado':isAdmin()?'Admin':maxUnit()?`Hasta U${maxUnit()}`:'Suspendido';return `<header class="topbar"><button class="iconButton" data-a="openSide">☰</button><b>${title}</b><div class="topbarActions"><button class="iconButton" data-a="search">⌕</button><span class="accessPill">${pill}</span></div></header>`;}
-function subjects(){return `<section class="heroBlock"><span class="eyebrow">CBC x SOLved</span><h1>¿Qué querés estudiar hoy?</h1><p>Elegí una materia.</p></section><section class="subjectGrid"><button class="subjectCard" data-v="chemistry"><div class="subjectIcon">⚗</div><div><span class="cardKicker">Disponible</span><h2>Química</h2><p>13 unidades preparadas para teoría, ejercicios y parciales.</p></div><b>›</b></button><button class="subjectCard math" data-v="math"><div class="subjectIcon">Σ</div><div><span class="cardKicker muted">Próximamente</span><h2>Matemática</h2><p>Espacio reservado. Todavía sin contenido.</p></div><b>›</b></button></section>`;}
-function chemistry(){const intro=guest?'Como invitado tenés la Unidad 1 y una pequeña vista previa del resto.':`Tu acceso actual llega hasta la Unidad ${maxUnit()}.`;return `<section class="heroBlock compactHero"><span class="eyebrow">Química CBC</span><h1>13 unidades, una sola ruta.</h1><p>${intro}</p></section><section class="unitGrid">${UNITS.map(u=>{const ok=u<=maxUnit();return `<button class="unitCard ${ok?'':'locked'}" data-u="${u}"><div class="unitNumber">${String(u).padStart(2,'0')}</div><div class="unitText"><span>${ok?'Disponible':'Vista previa'}</span><h3>Unidad ${u}</h3><p>Contenido listo para incorporar.</p></div><div class="unitState">${ok?'☀':'🔒'}</div></button>`}).join('')}</section>`;}
-function unitPage(){if(unit>maxUnit())return `<section class="lockedPage"><div class="lockOrb">🔒</div><span class="eyebrow">Unidad ${unit}</span><h1>Una pequeña muestra de esta unidad.</h1><p>Acá va a aparecer una introducción breve para que el invitado vea el estilo del material antes de acceder al contenido completo.</p><div class="teaser"><b>Vista previa</b><div class="fakeLine wide"></div><div class="fakeLine"></div><div class="fakeLine short"></div></div><div class="paywallNote">El desarrollo completo se habilita según el acceso asignado a tu mail.</div></section>`;return `<section class="unitPage"><span class="eyebrow">Química CBC · Unidad ${unit}</span><h1>Unidad ${unit}</h1><p class="lead">La estructura está lista. En la próxima etapa cargamos los PDFs de esta unidad.</p><div class="contentSkeleton"><div><span>01</span><strong>Teoría</strong><p>Diapositivas y explicación integrada.</p></div><div><span>02</span><strong>Ejercitación</strong><p>Guías completas y resolución paso a paso.</p></div><div><span>03</span><strong>Parciales</strong><p>Modelos y criterios de resolución.</p></div><div><span>04</span><strong>Glosario</strong><p>Conceptos importantes de la unidad.</p></div></div>${guest&&unit===1?'<div class="guestBadge">Unidad 1 habilitada para invitados</div>':''}</section>`;}
-function math(){return `<section class="emptySubject"><div class="subjectIcon big">Σ</div><span class="eyebrow">Matemática CBC</span><h1>El lugar ya está reservado.</h1><p>Por ahora no vamos a cargar contenido acá.</p></section>`;}
-function admin(){return `<section class="heroBlock compactHero"><span class="eyebrow">Administración</span><h1>Accesos de alumnos</h1><p>Agregá un mail y elegí hasta qué unidad puede entrar.</p></section>${!configured()?'<div class="demoBanner">Modo maqueta: falta conectar Supabase para persistir cambios.</div>':''}<section class="adminCard"><div class="addAccessRow"><label>Email<input id="newEmail" type="email" placeholder="alumno@gmail.com"></label><label>Acceso hasta<select id="newMax">${UNITS.map(u=>`<option value="${u}">Unidad ${u}</option>`).join('')}</select></label><button class="primaryButton small" data-a="addAccess">Agregar</button></div><div class="accessTableWrap"><table class="accessTable"><thead><tr><th>Mail</th><th>Hasta</th><th>Estado</th></tr></thead><tbody>${rows.length?rows.map(r=>`<tr><td><b>${esc(r.email)}</b></td><td><select data-mail="${esc(r.email)}">${UNITS.map(u=>`<option value="${u}" ${Number(r.max_unit)===u?'selected':''}>Unidad ${u}</option>`).join('')}</select></td><td><button class="statusToggle ${r.active?'on':'off'}" data-toggle="${esc(r.email)}">${r.active?'Activo':'Suspendido'}</button></td></tr>`).join(''):'<tr><td colspan="3" class="emptyTable">Todavía no hay accesos cargados.</td></tr>'}</tbody></table></div></section>`;}
-function searchModal(){return `<div class="modalLayer"><div class="searchModal"><div class="searchBox">⌕<input id="q" autofocus placeholder="Buscar materia o unidad…"><button class="iconButton" data-a="closeSearch">×</button></div><div id="results" class="searchResults"><div class="emptySearch">Escribí para buscar dentro de CBC x SOLved.</div></div></div></div>`;}
-function themeModal(){return `<div class="modalLayer"><div class="themeModal"><div class="modalTitle"><div><span class="eyebrow">Apariencia</span><h3>Elegí tu turquesa</h3></div><button class="iconButton" data-a="closeTheme">×</button></div><div class="themeGrid">${[['Turquesa','#0f9f9a'],['Aqua','#0d9488'],['Cian','#0891b2'],['Menta','#16a394']].map(([n,c])=>`<button data-color="${c}"><span style="background:${c}"></span>${n}</button>`).join('')}</div><label class="customColor">Color personalizado <input id="custom" type="color" value="${accent}"></label></div></div>`;}
-function render(){if(!session&&!guest){app.className='';app.innerHTML=welcome();bind();return;}let content=subjects();if(view==='chemistry')content=chemistry();if(view==='unit')content=unitPage();if(view==='math')content=math();if(view==='admin'&&isAdmin())content=admin();app.className='appShell';app.innerHTML=`${sidebar()}<div class="mainArea">${top()}<main class="content">${content}</main></div>${search?searchModal():''}${theme?themeModal():''}`;bind();}
-function bind(){document.querySelectorAll('[data-v]').forEach(x=>x.onclick=async()=>{view=x.dataset.v;side=false;if(view==='admin')await loadRows();render();});document.querySelectorAll('[data-u]').forEach(x=>x.onclick=()=>{unit=Number(x.dataset.u);view='unit';side=false;render();});const on=(q,fn)=>{const x=document.querySelector(q);if(x)x.onclick=fn};on('[data-a="google"]',google);on('[data-a="guest"]',()=>{guest=true;localStorage.setItem('cbc-mode','guest');render()});on('[data-a="install"]',async()=>{if(installPrompt){installPrompt.prompt();await installPrompt.userChoice;installPrompt=null}else{msg='En Chrome: menú ⋮ → Instalar app o Agregar a pantalla principal.';render()}});on('[data-a="logout"]',logout);on('[data-a="openSide"]',()=>{side=true;render()});document.querySelectorAll('[data-a="closeSide"]').forEach(x=>x.onclick=()=>{side=false;render()});on('[data-a="search"]',()=>{search=true;render();setTimeout(()=>document.querySelector('#q')?.focus(),0)});on('[data-a="closeSearch"]',()=>{search=false;render()});on('[data-a="theme"]',()=>{theme=true;render()});on('[data-a="closeTheme"]',()=>{theme=false;render()});on('[data-a="addAccess"]',addAccess);document.querySelectorAll('[data-mail]').forEach(x=>x.onchange=()=>patchAccess(x.dataset.mail,{max_unit:Number(x.value)}));document.querySelectorAll('[data-toggle]').forEach(x=>x.onclick=()=>{const r=rows.find(r=>r.email===x.dataset.toggle);if(r)patchAccess(r.email,{active:!r.active})});document.querySelectorAll('[data-color]').forEach(x=>x.onclick=()=>setAccent(x.dataset.color));const custom=document.querySelector('#custom');if(custom)custom.oninput=e=>setAccent(e.target.value);const q=document.querySelector('#q');if(q)q.oninput=e=>{const s=e.target.value.toLowerCase().trim();const data=[['Química','chemistry'],['Matemática','math'],...UNITS.map(u=>[`Química · Unidad ${u}`,`unit:${u}`])].filter(([t])=>t.toLowerCase().includes(s));document.querySelector('#results').innerHTML=s?(data.length?data.map(([t,k])=>`<button data-result="${k}"><b>${t}</b><span>›</span></button>`).join(''):'<div class="emptySearch">No encontré resultados.</div>'):'<div class="emptySearch">Escribí para buscar dentro de CBC x SOLved.</div>';document.querySelectorAll('[data-result]').forEach(r=>r.onclick=()=>{const k=r.dataset.result;if(k.startsWith('unit:')){unit=Number(k.split(':')[1]);view='unit'}else view=k;search=false;render()})};}
-function setAccent(c){accent=c;localStorage.setItem('cbc-accent',c);document.documentElement.style.setProperty('--accent',c);render();}
+  if(!(CFG.supabaseUrl&&CFG.supabaseAnonKey)){
+    msg='Falta la configuración de conexión.';
+    render();
+    return;
+  }
+
+  try{
+    const modulePromise=import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+    const timeoutPromise=new Promise((_,reject)=>setTimeout(()=>reject(new Error('Timeout cargando Supabase')),10000));
+    const {createClient}=await Promise.race([modulePromise,timeoutPromise]);
+
+    sb=createClient(CFG.supabaseUrl,CFG.supabaseAnonKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+
+    // Escuchar cambios sin hacer consultas dentro del lock de Auth.
+    sb.auth.onAuthStateChange((_event,next)=>{
+      window.setTimeout(()=>applySession(next),0);
+    });
+
+    const {data:{session:initialSession},error:sessionError}=await sb.auth.getSession();
+    if(sessionError) console.error(sessionError);
+    applySession(initialSession);
+
+    // Contenido y datos se cargan después de que la UI ya está visible.
+    window.setTimeout(async()=>{
+      try{await loadUnit1();render();}catch(err){console.error(err);}
+    },0);
+  }catch(err){
+    showStartupError(err);
+  }
+}
+
+function brand(){return `<div class="brand"><img src="./sun.svg" alt=""><div><b>CBC x SOLved</b><small>Clases del CBC</small></div></div>`}
+function welcome(){return `<main class="welcome"><section class="welcomeCard">${brand()}<div class="welcomeHero"><span class="eyebrow">Tu espacio de estudio</span><h1>Química CBC, organizada para aprender de verdad.</h1><p>Entrá con tu cuenta o recorré la Unidad 1 completa como invitado.</p></div><div class="welcomeActions"><button class="primary" data-a="google">G&nbsp; Ingresar con Gmail</button><button class="secondary" data-a="guest">☀ Ver como invitado</button><button class="ghost" data-a="install">↓ Instalar app</button></div>${msg?`<div class="notice">${esc(msg)}</div>`:''}</section></main>`}
+function navBtn(v,label,icon){return `<button data-v="${v}" class="${view===v||(v==='chemistry'&&view==='unit')?'active':''}"><span>${icon}</span>${label}</button>`}
+function sidebar(){return `<aside class="sidebar ${side?'open':''}"><div class="sideHead">${brand()}<button class="icon mobileOnly" data-a="closeSide">×</button></div><nav>${navBtn('subjects','Materias','⌂')}${navBtn('chemistry','Química','⚗')}${navBtn('math','Matemática','Σ')}${isAdmin()?navBtn('admin','Panel de control','⚙'):''}</nav><div class="unitIndex"><div class="sideLabel">Química</div>${UNITS.map(u=>`<button data-u="${u}" class="${view==='unit'&&unit===u?'active':''}"><span>${u}</span><b>Unidad ${u}</b><em>${canUnit(u)?'':'🔒'}</em></button>`).join('')}</div><div class="sideBottom"><button data-a="theme">◐ Apariencia</button><button data-a="logout">↪ ${guest?'Salir de invitado':'Cerrar sesión'}</button></div></aside>${side?'<button class="backdrop" data-a="closeSide"></button>':''}`}
+function renderTopbar(){const t=view==='subjects'?'Materias':view==='chemistry'?'Química':view==='math'?'Matemática':view==='admin'?'Panel de control':`Química · Unidad ${unit}`;const pill=guest?'Invitado':isAdmin()?'Administrador':currentAccess()?'Alumno':'Sin acceso';return `<header class="top"><button class="icon" data-a="openSide">☰</button><b>${t}</b><div class="topActions"><button class="icon" data-a="search">⌕</button><span class="pill">${pill}</span></div></header>`}
+function subjects(){return `<section class="hero"><span class="eyebrow">CBC x SOLved</span><h1>¿Qué querés estudiar?</h1><p>Elegí una materia para entrar.</p></section><div class="subjects"><button class="subject" data-v="chemistry"><div class="subjectIcon">⚗</div><div><small>Disponible</small><h2>Química</h2><p>Unidad 1 completa y estructura preparada para las 13 unidades.</p></div><b>›</b></button><button class="subject disabled" data-v="math"><div class="subjectIcon">Σ</div><div><small>Próximamente</small><h2>Matemática</h2><p>El espacio está creado; todavía sin contenido.</p></div><b>›</b></button></div>`}
+function chemistry(){return `<section class="hero compact"><span class="eyebrow">Química CBC</span><h1>Elegí la unidad.</h1><p>Los permisos pueden ser salteados: una unidad habilitada no implica acceso a las anteriores.</p></section><div class="units">${UNITS.map(u=>`<button class="unitCard ${canUnit(u)?'':'locked'}" data-u="${u}"><span>${String(u).padStart(2,'0')}</span><div><small>${u===1?'Acceso libre':canUnit(u)?'Habilitada':'Vista previa'}</small><h3>Unidad ${u}</h3><p>${u===1?'Materia, estados, densidad, sistemas, fórmulas, separaciones y composición.':'Contenido por incorporar.'}</p></div><b>${canUnit(u)?'☀':'🔒'}</b></button>`).join('')}</div>`}
+function unitPage(){if(!canUnit(unit))return `<section class="lockedPage"><div class="bigIcon">🔒</div><span class="eyebrow">Unidad ${unit}</span><h1>Esta unidad no está habilitada.</h1><p>El acceso se asigna por unidad, capítulo o evaluación y puede vencer en una fecha determinada.</p></section>`;if(unit!==1)return `<section class="hero"><span class="eyebrow">Química · Unidad ${unit}</span><h1>Unidad ${unit}</h1><p>La estructura está lista; el contenido se incorporará más adelante.</p></section>`;return `<section class="unitHero"><span class="eyebrow">Química CBC · Unidad 1</span><h1>Unidad 1</h1><p>Teoría completa, ejemplos, práctica, resoluciones y simuladores del material maestro.</p><div class="unitStats"><span>7 capítulos</span><span>17 ejemplos fuente</span><span>17 ejemplos espejo</span><span>2 guías</span></div></section><div class="sectionChips">${unit1Sections.map(s=>`<button data-scroll="${s.key}">${s.type==='chapter'?'Capítulo':s.type==='evaluation'?'Evaluación':'Recurso'} · ${esc(s.title.replace(/^\d+\.\s*/,''))}</button>`).join('')}</div><div class="studySections">${unit1Sections.filter(s=>canSection(1,s)).map((s,i)=>`<details id="sec-${s.key}" class="studySection" ${i<2?'open':''}><summary><div><small>${s.type==='chapter'?'CAPÍTULO':s.type==='evaluation'?'PRÁCTICA / EVALUACIÓN':'RECURSO'}</small><h2>${esc(s.title)}</h2></div><span>⌄</span></summary><article>${s.html}</article></details>`).join('')}</div>`}
+function math(){return `<section class="lockedPage"><div class="bigIcon">Σ</div><span class="eyebrow">Matemática CBC</span><h1>Próximamente.</h1><p>Por ahora vamos a trabajar sólo sobre Química.</p></section>`}
+function expiryLabel(u){if(!u.active)return'Suspendido';if(!u.access_expires_at)return'Sin vencimiento';const d=new Date(u.access_expires_at);if(d<Date.now())return'Vencido';return`Vence ${fmtDate(d)}`}
+function grantSummary(email){const gs=userGrants(email);if(!gs.length)return'Sin permisos privados';const by=[...new Set(gs.map(g=>`U${g.unit_no}`))];return by.join(' · ')}
+function unitGrantCard(u){const full=hasDraftFull(u);const chapters=u===1?unit1Sections.filter(s=>s.type==='chapter'):[];const evals=u===1?unit1Sections.filter(s=>s.type==='evaluation'):[];return `<div class="grantUnit"><div class="grantUnitHead"><div><span>Unidad ${u}</span>${u===1?'<small>Pública para invitados</small>':''}</div><label class="checkRow"><input type="checkbox" data-full-unit="${u}" ${full?'checked':''}> Toda la unidad</label></div>${chapters.length?`<div class="grantSub"><b>Capítulos</b>${chapters.map(s=>`<label class="checkRow"><input type="checkbox" data-grant-section="${u}|chapter|${s.key}" ${hasDraftSection(u,'chapter',s.key)?'checked':''} ${full?'disabled':''}> ${esc(s.title.replace(/^\d+\.\s*/,''))}</label>`).join('')}</div>`:''}${evals.length?`<div class="grantSub"><b>Evaluaciones / práctica</b>${evals.map(s=>`<label class="checkRow"><input type="checkbox" data-grant-section="${u}|evaluation|${s.key}" ${hasDraftSection(u,'evaluation',s.key)?'checked':''} ${full?'disabled':''}> ${esc(s.title.replace(/^\d+\.\s*/,''))}</label>`).join('')}</div>`:''}${u>1?'<small class="muted">Todavía no hay capítulos cargados; por ahora se puede habilitar la unidad completa.</small>':''}</div>`}
+function admin(){return `<section class="hero compact"><span class="eyebrow">Administración</span><h1>Panel de control</h1><p>Elegí exactamente qué unidades, capítulos y evaluaciones ve cada alumno y por cuánto tiempo.</p></section><section class="adminEditor"><div class="editorHead"><div><h2>${editing?'Editar acceso':'Nuevo acceso'}</h2><p>El acceso empieza al guardarlo.</p></div>${editing?'<button class="secondary small" data-a="resetForm">Nuevo</button>':''}</div><label class="field">Email<input id="accessEmail" type="email" value="${esc(editing?.email||'')}" placeholder="alumno@gmail.com" ${editing?'readonly':''}></label><div class="duration"><b>Duración</b><div class="durationPresets">${[['1m','1 mes'],['2m','2 meses'],['3m','3 meses'],['forever','Por siempre']].map(([k,l])=>`<button data-duration="${k}" class="${durationMode===k?'selected':''}">${l}</button>`).join('')}${editing?`<button data-duration="keep" class="${durationMode==='keep'?'selected':''}">Mantener actual</button>`:''}</div><label class="field dateField">Elegir otra fecha<input id="expiryDate" type="date" value="${customDate}"></label></div><h3 class="subheading">Permisos de Química</h3><div class="grantGrid">${UNITS.map(unitGrantCard).join('')}</div><button class="primary saveAccess" data-a="saveAccess">Guardar acceso</button></section><section class="adminList"><div class="listHead"><h2>Alumnos y testers</h2><span>${users.filter(u=>u.role!=='admin').length} registrados</span></div>${users.filter(u=>u.role!=='admin').length?users.filter(u=>u.role!=='admin').map(u=>`<div class="userRow"><div><b>${esc(u.email)}</b><small>${grantSummary(u.email)}</small></div><div><span class="status ${expiryLabel(u)==='Suspendido'||expiryLabel(u)==='Vencido'?'bad':''}">${expiryLabel(u)}</span><button class="secondary small" data-edit="${esc(u.email)}">Editar</button><button class="ghost small" data-toggle-user="${esc(u.email)}" data-active="${u.active}">${u.active?'Suspender':'Reactivar'}</button></div></div>`).join(''):'<div class="empty">Todavía no agregaste alumnos.</div>'}</section>`}
+function searchModal(){const items=[['Química','chemistry'],['Matemática','math'],...UNITS.map(u=>[`Química · Unidad ${u}`,`unit:${u}`]),...unit1Sections.map(s=>[`Unidad 1 · ${s.title}`,`section:${s.key}`])];return `<div class="modalLayer"><div class="searchModal"><div class="searchBox">⌕<input id="q" autofocus placeholder="Buscar materia, unidad o tema…"><button class="icon" data-a="closeSearch">×</button></div><div id="results" class="results">${items.slice(0,8).map(([t,k])=>`<button data-result="${k}"><b>${esc(t)}</b><span>›</span></button>`).join('')}</div></div></div>`}
+function themeModal(){return `<div class="modalLayer"><div class="themeModal"><div class="modalTitle"><div><span class="eyebrow">Apariencia</span><h2>Personalizá CBC x SOLved</h2></div><button class="icon" data-a="closeTheme">×</button></div><div class="themeModes"><button data-mode="light" class="${mode==='light'?'selected':''}">☀ Claro</button><button data-mode="dark" class="${mode==='dark'?'selected':''}">☾ Oscuro</button></div><label class="colorField">Color principal <input id="accentColor" type="color" value="${accent}"></label><div class="swatches">${['#0f9f9a','#06b6d4','#14b8a6','#22c55e','#3b82f6','#8b5cf6','#ec4899','#f59e0b'].map(c=>`<button data-color="${c}" style="--sw:${c}"></button>`).join('')}</div><p>El color y el modo quedan guardados en este dispositivo.</p></div></div>`}
+
+function render(){if(!session&&!guest){app.className='';app.innerHTML=welcome();bind();return}let content=subjects();if(view==='chemistry')content=chemistry();if(view==='unit')content=unitPage();if(view==='math')content=math();if(view==='admin'&&isAdmin())content=admin();app.className='appShell';app.innerHTML=`${sidebar()}<div class="main">${renderTopbar()}<main class="content">${msg?`<div class="notice inline">${esc(msg)}</div>`:''}${content}</main></div>${searchOpen?searchModal():''}${themeOpen?themeModal():''}`;bind()}
+function bind(){
+  document.querySelectorAll('[data-v]').forEach(x=>x.onclick=async()=>{view=x.dataset.v;side=false;if(view==='admin')await loadAdmin();render()});
+  document.querySelectorAll('[data-u]').forEach(x=>x.onclick=()=>{unit=Number(x.dataset.u);view='unit';side=false;render()});
+  const on=(q,fn)=>{const x=document.querySelector(q);if(x)x.onclick=fn};
+  on('[data-a="google"]',google);on('[data-a="guest"]',()=>{guest=true;localStorage.setItem('cbc-mode','guest');render()});
+  on('[data-a="install"]',async()=>{if(installPrompt){installPrompt.prompt();installPrompt=null}else{msg='En Chrome: menú ⋮ → Instalar app o Agregar a pantalla principal.';render()}});
+  on('[data-a="logout"]',logout);on('[data-a="openSide"]',()=>{side=true;render()});document.querySelectorAll('[data-a="closeSide"]').forEach(x=>x.onclick=()=>{side=false;render()});
+  on('[data-a="search"]',()=>{searchOpen=true;render();setTimeout(()=>document.querySelector('#q')?.focus(),20)});on('[data-a="closeSearch"]',()=>{searchOpen=false;render()});
+  on('[data-a="theme"]',()=>{themeOpen=true;render()});on('[data-a="closeTheme"]',()=>{themeOpen=false;render()});
+  on('[data-a="saveAccess"]',saveAccess);on('[data-a="resetForm"]',resetForm);
+  document.querySelectorAll('[data-edit]').forEach(x=>x.onclick=()=>editUser(x.dataset.edit));document.querySelectorAll('[data-toggle-user]').forEach(x=>x.onclick=()=>toggleUser(x.dataset.toggleUser,x.dataset.active!=='true'));
+  document.querySelectorAll('[data-duration]').forEach(x=>x.onclick=()=>{durationMode=x.dataset.duration;if(durationMode!=='custom')customDate='';document.querySelectorAll('[data-duration]').forEach(b=>b.classList.toggle('selected',b.dataset.duration===durationMode));});
+  const date=document.querySelector('#expiryDate');if(date)date.onchange=e=>{customDate=e.target.value;durationMode='custom';document.querySelectorAll('[data-duration]').forEach(b=>b.classList.remove('selected'));};
+  document.querySelectorAll('[data-scroll]').forEach(x=>x.onclick=()=>document.querySelector(`#sec-${CSS.escape(x.dataset.scroll)}`)?.scrollIntoView({behavior:'smooth',block:'start'}));
+  document.querySelectorAll('[data-mode]').forEach(x=>x.onclick=()=>{mode=x.dataset.mode;localStorage.setItem('cbc-theme',mode);applyTheme();render()});
+  document.querySelectorAll('[data-color]').forEach(x=>x.onclick=()=>{accent=x.dataset.color;localStorage.setItem('cbc-accent',accent);applyTheme();render()});
+  const ac=document.querySelector('#accentColor');if(ac)ac.oninput=e=>{accent=e.target.value;localStorage.setItem('cbc-accent',accent);applyTheme()};
+  const q=document.querySelector('#q');if(q)q.oninput=e=>{const s=e.target.value.toLowerCase();const items=[['Química','chemistry'],['Matemática','math'],...UNITS.map(u=>[`Química · Unidad ${u}`,`unit:${u}`]),...unit1Sections.map(x=>[`Unidad 1 · ${x.title}`,`section:${x.key}`])].filter(([t])=>t.toLowerCase().includes(s));document.querySelector('#results').innerHTML=items.map(([t,k])=>`<button data-result="${k}"><b>${esc(t)}</b><span>›</span></button>`).join('')||'<div class="empty">Sin resultados.</div>';document.querySelectorAll('[data-result]').forEach(r=>r.onclick=()=>goResult(r.dataset.result))};
+  document.querySelectorAll('[data-result]').forEach(r=>r.onclick=()=>goResult(r.dataset.result));
+}
+function goResult(k){if(k.startsWith('unit:')){unit=Number(k.split(':')[1]);view='unit'}else if(k.startsWith('section:')){unit=1;view='unit';searchOpen=false;render();setTimeout(()=>document.querySelector(`#sec-${CSS.escape(k.split(':')[1])}`)?.scrollIntoView({behavior:'smooth'}),60);return}else view=k;searchOpen=false;render()}
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e});
-if('serviceWorker'in navigator&&location.protocol!=='file:')navigator.serviceWorker.register('./sw.js').catch(()=>{});
-init().catch(e=>{console.error(e);msg='No se pudo iniciar el servicio de acceso. El modo invitado sigue disponible.';render();});
+if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js');
+init();
+
+

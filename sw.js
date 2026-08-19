@@ -1,12 +1,29 @@
-const CACHE='cbc-x-solved-v0.2.2';
-const CORE=['./','./index.html','./styles-v2.css?v=2.2','./app-core.js?v=2.2','./app-data.js?v=2.2','./app-ui.js?v=2.2','./app-bind.js?v=2.2','./config.js?v=2.2','./manifest.webmanifest','./sun.svg'];
-self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting())));
-self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
-self.addEventListener('fetch',e=>{
-  if(e.request.method!=='GET')return;
-  e.respondWith(fetch(e.request,{cache:'no-store'}).then(r=>{
-    const copy=r.clone();
-    caches.open(CACHE).then(c=>c.put(e.request,copy)).catch(()=>{});
-    return r;
-  }).catch(()=>caches.match(e.request).then(r=>r||caches.match('./index.html'))));
+const CACHE='cbc-x-solved-v0.3.0';
+const CORE=['./','./index.html','./styles-v2.css','./app.js','./config.js','./manifest.webmanifest','./sun.svg'];
+
+self.addEventListener('install',event=>event.waitUntil(
+  caches.open(CACHE).then(cache=>cache.addAll(CORE)).then(()=>self.skipWaiting())
+));
+self.addEventListener('activate',event=>event.waitUntil(
+  caches.keys()
+    .then(keys=>Promise.all(keys.filter(key=>key.startsWith('cbc-x-solved-')&&key!==CACHE).map(key=>caches.delete(key))))
+    .then(()=>self.clients.claim())
+));
+self.addEventListener('fetch',event=>{
+  const request=event.request;
+  if(request.method!=='GET')return;
+  const url=new URL(request.url);
+  if(url.origin!==self.location.origin)return;
+
+  // Navegación y shell: red primero, caché sólo como respaldo offline.
+  event.respondWith(fetch(request,{cache:'no-store'}).then(response=>{
+    if(response.ok)caches.open(CACHE).then(cache=>cache.put(request,response.clone()));
+    return response;
+  }).catch(async()=>{
+    const cached=await caches.match(request,{ignoreSearch:true});
+    if(cached)return cached;
+    if(request.mode==='navigate')return caches.match('./index.html');
+    return Response.error();
+  }));
 });
+
