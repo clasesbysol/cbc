@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" role="img" aria-labelledby="title desc">
+ <title id="title">Regla completa de las diagonales</title><desc id="desc">Subniveles desde 1s hasta 7p y flechas diagonales que muestran el orden de llenado.</desc>
+ <rect width="900" height="620" rx="32" fill="#eefaf8"/>
+ <text x="50" y="58" font-family="Nunito,Arial" font-size="28" font-weight="900" fill="#153d3a">Regla de las diagonales · orden de llenado</text>
+ <g font-family="Nunito,Arial" font-size="24" font-weight="900" text-anchor="middle">
+  <g fill="#fff" stroke="#0f9f9a" stroke-width="3">
+   <rect x="85" y="92" width="72" height="48" rx="13"/><rect x="85" y="158" width="72" height="48" rx="13"/><rect x="198" y="158" width="72" height="48" rx="13"/>
+   <rect x="85" y="224" width="72" height="48" rx="13"/><rect x="198" y="224" width="72" height="48" rx="13"/><rect x="311" y="224" width="72" height="48" rx="13"/>
+   <rect x="85" y="290" width="72" height="48" rx="13"/><rect x="198" y="290" width="72" height="48" rx="13"/><rect x="311" y="290" width="72" height="48" rx="13"/><rect x="424" y="290" width="72" height="48" rx="13"/>
+   <rect x="85" y="356" width="72" height="48" rx="13"/><rect x="198" y="356" width="72" height="48" rx="13"/><rect x="311" y="356" width="72" height="48" rx="13"/><rect x="424" y="356" width="72" height="48" rx="13"/>
+   <rect x="85" y="422" width="72" height="48" rx="13"/><rect x="198" y="422" width="72" height="48" rx="13"/><rect x="311" y="422" width="72" height="48" rx="13"/>
+   <rect x="85" y="488" width="72" height="48" rx="13"/><rect x="198" y="488" width="72" height="48" rx="13"/>
+  </g>
+  <g fill="#153d3a"><text x="121" y="125">1s</text><text x="121" y="191">2s</text><text x="234" y="191">2p</text><text x="121" y="257">3s</text><text x="234" y="257">3p</text><text x="347" y="257">3d</text><text x="121" y="323">4s</text><text x="234" y="323">4p</text><text x="347" y="323">4d</text><text x="460" y="323">4f</text><text x="121" y="389">5s</text><text x="234" y="389">5p</text><text x="347" y="389">5d</text><text x="460" y="389">5f</text><text x="121" y="455">6s</text><text x="234" y="455">6p</text><text x="347" y="455">6d</text><text x="121" y="521">7s</text><text x="234" y="521">7p</text></g>
+ </g>
+ <defs><marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0 0L9 3 0 6z" fill="#ef7e55"/></marker></defs>
+ <g fill="none" stroke="#ef7e55" stroke-width="6" stroke-linecap="round" marker-end="url(#a)">
+  <path d="M170 102L91 178"/><path d="M282 168L92 322"/><path d="M396 234L92 453"/><path d="M510 300L93 520"/><path d="M510 366L202 520"/>
+ </g>
+ <g font-family="Nunito,Arial" fill="#153d3a"><text x="570" y="135" font-size="20" font-weight="900">Secuencia completa</text><text x="570" y="174" font-size="18">1s → 2s → 2p → 3s</text><text x="570" y="207" font-size="18">→ 3p → 4s → 3d → 4p</text><text x="570" y="240" font-size="18">→ 5s → 4d → 5p → 6s</text><text x="570" y="273" font-size="18">→ 4f → 5d → 6p → 7s</text><text x="570" y="306" font-size="18">→ 5f → 6d → 7p</text><text x="570" y="370" font-size="17" font-weight="800">Capacidad:</text><text x="570" y="401" font-size="17">s = 2 e⁻ · p = 6 e⁻</text><text x="570" y="432" font-size="17">d = 10 e⁻ · f = 14 e⁻</text></g>
+</svg>
