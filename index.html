@@ -5,6 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#0f9f9a" />
   <meta name="description" content="CBC x SOLved — plataforma de estudio para materias del CBC" />
+  <script>
+    (function(){
+      try{
+        var returning=localStorage.getItem('27xsolved-auth-return')==='1';
+        var authPayload=/([?&#])(code|access_token|refresh_token|error|error_code|error_description)=/i.test(location.search+location.hash);
+        if(returning&&authPayload){
+          localStorage.removeItem('27xsolved-auth-return');
+          location.replace('https://clasesbysol.github.io/27xsolved/'+location.search+location.hash);
+        }
+      }catch(_){ }
+    })();
+  </script>
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" href="./sun.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="./sun.svg" />
@@ -46,4 +58,3 @@
   <script type="module" src="./app.js"></script>
 </body>
 </html>
-
