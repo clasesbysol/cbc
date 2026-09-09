@@ -1,5 +1,5 @@
-const CACHE='cbc-x-solved-v0.13.0';
-const CORE=['./','./index.html','./styles-v2.css','./cbc-refresh.css','./app.js','./cbc-refresh.js','./config.js','./manifest.webmanifest','./cbc-logo.png','./sun.svg','./assets/chemistry/periodic-table.json','./assets/chemistry/history/jj-thomson.jpg','./assets/chemistry/history/ernest-rutherford.jpg','./assets/chemistry/history/niels-bohr.jpg','./assets/chemistry/unit-01/matter-models.svg','./assets/chemistry/unit-01/states-particles.svg','./assets/chemistry/unit-01/density-lab.svg','./assets/chemistry/unit-01/phases-components.svg','./assets/chemistry/unit-01/substances-molecules.svg','./assets/chemistry/unit-01/separation-methods.svg','./assets/chemistry/unit-01/composition-percent.svg','./assets/chemistry/unit-02/atomic-models.svg','./assets/chemistry/unit-02/rutherford-experiment-wikimedia.svg','./assets/chemistry/unit-02/nuclear-notation.svg','./assets/chemistry/unit-02/hydrogen-spectrum-wikimedia.png','./assets/chemistry/unit-02/orbital-clouds-wikimedia.png','./assets/chemistry/unit-02/electron-configuration.svg','./assets/chemistry/unit-02/periodic-trends.svg'];
+const CACHE='cbc-x-solved-v0.14.0';
+const CORE=['./','./index.html','./styles-v2.css','./cbc-refresh.css','./cbc-branding.css','./app.js','./cbc-refresh.js','./cbc-branding.js','./config.js','./manifest.webmanifest','./cbc-logo.png','./cbc-app-icon.svg','./sun.svg','./assets/chemistry/periodic-table.json','./assets/chemistry/history/jj-thomson.jpg','./assets/chemistry/history/ernest-rutherford.jpg','./assets/chemistry/history/niels-bohr.jpg','./assets/chemistry/unit-01/matter-models.svg','./assets/chemistry/unit-01/states-particles.svg','./assets/chemistry/unit-01/density-lab.svg','./assets/chemistry/unit-01/phases-components.svg','./assets/chemistry/unit-01/substances-molecules.svg','./assets/chemistry/unit-01/separation-methods.svg','./assets/chemistry/unit-01/composition-percent.svg','./assets/chemistry/unit-02/atomic-models.svg','./assets/chemistry/unit-02/rutherford-experiment-wikimedia.svg','./assets/chemistry/unit-02/nuclear-notation.svg','./assets/chemistry/unit-02/hydrogen-spectrum-wikimedia.png','./assets/chemistry/unit-02/orbital-clouds-wikimedia.png','./assets/chemistry/unit-02/electron-configuration.svg','./assets/chemistry/unit-02/periodic-trends.svg'];
 
 self.addEventListener('install',event=>event.waitUntil(
   caches.open(CACHE).then(cache=>cache.addAll(CORE)).then(()=>self.skipWaiting())
@@ -15,7 +15,6 @@ self.addEventListener('fetch',event=>{
   const url=new URL(request.url);
   if(url.origin!==self.location.origin)return;
 
-  // Navegación y shell: red primero, caché sólo como respaldo offline.
   event.respondWith(fetch(request,{cache:'no-store'}).then(response=>{
     if(response.ok)caches.open(CACHE).then(cache=>cache.put(request,response.clone()));
     return response;
