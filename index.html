@@ -21,27 +21,27 @@
       }catch(_){ }
     })();
   </script>
-  <link rel="manifest" href="./manifest.webmanifest?v=0.14.0" />
-  <link rel="icon" href="./cbc-logo.png?v=0.14.0" type="image/png" sizes="256x256" />
-  <link rel="apple-touch-icon" href="./cbc-logo.png?v=0.14.0" />
+  <link rel="manifest" href="./manifest.webmanifest?v=0.15.0" />
+  <link rel="icon" href="./cbc-favicon-32.png?v=0.15.0" type="image/png" sizes="32x32" />
+  <link rel="apple-touch-icon" href="./cbc-apple-touch-icon.png?v=0.15.0" sizes="180x180" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" crossorigin="anonymous" />
   <link rel="stylesheet" href="./styles-v2.css" />
-  <link rel="stylesheet" href="./cbc-refresh.css?v=0.14.0" />
-  <link rel="stylesheet" href="./cbc-branding.css?v=0.14.0" />
+  <link rel="stylesheet" href="./cbc-refresh.css?v=0.15.0" />
+  <link rel="stylesheet" href="./cbc-branding.css?v=0.15.0" />
   <title>CBC x SOLved</title>
 </head>
 <body>
-  <div id="app" class="loading"><img src="./cbc-logo.png?v=0.14.0" alt="CBC x SOLved" /> Cargando CBC x SOLved…</div>
+  <div id="app" class="loading"><img src="./cbc-logo.png?v=0.15.0" alt="CBC x SOLved" /> Cargando CBC x SOLved…</div>
 
   <script>
     window.__cbcBootError = function(message){
       var el=document.getElementById('app');
       if(!el) return;
       el.className='';
-      el.innerHTML='<main style="min-height:100vh;display:grid;place-items:center;padding:24px;font-family:system-ui,sans-serif;background:#ffffff;color:#0f1f53"><section style="max-width:560px;background:#ffffff;border:1px solid #d9e5f2;border-radius:22px;padding:28px;box-shadow:0 18px 50px rgba(15,31,83,.10);text-align:center"><img src="./cbc-logo.png?v=0.14.0" alt="CBC x SOLved" style="width:112px;height:112px;border-radius:50%;object-fit:contain"><h1 style="margin:16px 0 8px">CBC x SOLved</h1><p style="line-height:1.5">La app encontró un problema al iniciar.</p><p style="font-size:13px;opacity:.7;word-break:break-word">'+String(message||'Error desconocido').replace(/[&<>]/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]})+'</p><button onclick="location.reload()" style="margin-top:12px;border:0;border-radius:12px;padding:12px 18px;background:#0f1f53;color:white;font-weight:700;cursor:pointer">Reintentar</button></section></main>';
+      el.innerHTML='<main style="min-height:100vh;display:grid;place-items:center;padding:24px;font-family:system-ui,sans-serif;background:#ffffff;color:#0f1f53"><section style="max-width:560px;background:#ffffff;border:1px solid #d9e5f2;border-radius:22px;padding:28px;box-shadow:0 18px 50px rgba(15,31,83,.10);text-align:center"><img src="./cbc-logo.png?v=0.15.0" alt="CBC x SOLved" style="width:112px;height:112px;object-fit:contain"><h1 style="margin:16px 0 8px">CBC x SOLved</h1><p style="line-height:1.5">La app encontró un problema al iniciar.</p><p style="font-size:13px;opacity:.7;word-break:break-word">'+String(message||'Error desconocido').replace(/[&<>]/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]})+'</p><button onclick="location.reload()" style="margin-top:12px;border:0;border-radius:12px;padding:12px 18px;background:#0f1f53;color:white;font-weight:700;cursor:pointer">Reintentar</button></section></main>';
     };
     window.addEventListener('error',function(e){
       if(document.getElementById('app') && document.getElementById('app').classList.contains('loading')){
@@ -62,7 +62,7 @@
   <script src="./config.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js" crossorigin="anonymous"></script>
   <script type="module" src="./app.js"></script>
-  <script defer src="./cbc-refresh.js?v=0.14.0"></script>
-  <script defer src="./cbc-branding.js?v=0.14.0"></script>
+  <script defer src="./cbc-refresh.js?v=0.15.0"></script>
+  <script defer src="./cbc-branding.js?v=0.15.0"></script>
 </body>
 </html>

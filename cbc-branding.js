@@ -1,6 +1,6 @@
 (()=>{
   'use strict';
-  const LOGO='./cbc-logo.png?v=0.14.0';
+  const LOGO='./cbc-logo.png?v=0.15.0';
   let scheduled=false;
 
   const img=(className,alt='CBC x SOLved')=>{
@@ -14,7 +14,7 @@
 
   function ensureBrandImages(){
     document.querySelectorAll('.brand img,.loading img').forEach(el=>{
-      if(!el.src.includes('cbc-logo.png'))el.src=LOGO;
+      if(el.getAttribute('src')!==LOGO)el.src=LOGO;
       el.style.objectFit='contain';
       el.style.objectPosition='center';
     });

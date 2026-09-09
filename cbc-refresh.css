@@ -32,7 +32,7 @@ body::before,.masterHero::before{display:none!important}
 .welcomeCard,.subject,.unitCard,.studyFlow .studySection,.studyLayout>.unitToc,.adminEditor,.adminList,.searchModal,.themeModal{box-shadow:var(--shadow)!important}
 
 .brand{gap:12px}
-.brand img{width:56px!important;height:56px!important;border-radius:50%;object-fit:cover;flex:0 0 auto}
+.brand img{width:56px!important;height:56px!important;border-radius:0;object-fit:contain;flex:0 0 auto}
 .brand b{color:var(--brand-navy);font-weight:900;letter-spacing:-.035em}
 :root[data-theme="dark"] .brand b{color:#fff}
 .brand small{color:var(--muted)!important}
@@ -128,3 +128,9 @@ body::before,.masterHero::before{display:none!important}
   .cbc-element-float .propertyGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(max-width:480px){.cbc-element-float .propertyGrid{grid-template-columns:1fr}}
+
+/* Bienvenida: celeste de marca también en la tarjeta que ocupa toda la pantalla móvil. */
+.welcome,.welcomeCard{background:var(--brand-sky)!important;color:var(--brand-navy)}
+.welcome{--surface:#fff!important;--surface2:#f4f8ff!important;--text:var(--brand-navy)!important;--muted:#69758f!important;--border:#d9e5f2!important;--accent:var(--brand-navy)!important}
+:root .welcome .primary{background:var(--brand-navy)!important;color:#fff!important;border-color:var(--brand-navy)!important}
+.welcome .brand b,.welcome .eyebrow,.welcomeHero p{color:var(--brand-navy)!important}
