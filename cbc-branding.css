@@ -1,0 +1,91 @@
+/* CBC x SOLved — branding visible v0.14 */
+
+/* El logo nunca debe recortarse. */
+.brand,.sideHead,.sidebar{overflow:visible!important}
+.brand{min-width:0;gap:14px!important;align-items:center!important}
+.brand img{
+  width:68px!important;
+  height:68px!important;
+  min-width:68px!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  display:block!important;
+  border-radius:50%!important;
+  background:transparent!important;
+  box-shadow:0 0 0 3px var(--surface),0 0 0 5px color-mix(in srgb,var(--brand-sky) 62%,var(--border))!important;
+}
+.sideHead{min-height:96px;padding:8px 7px 20px!important;align-items:center!important}
+.sidebar .brand b{font-size:21px!important;white-space:nowrap}
+.sidebar .brand small{font-size:12px!important}
+
+/* Marca pequeña permanente en la barra superior. */
+.cbc-top-logo{
+  width:38px;height:38px;object-fit:contain;display:block;border-radius:50%;
+  flex:0 0 auto;border:1px solid var(--border);background:var(--brand-sky);
+}
+.top>.cbc-top-logo{margin-left:-3px}
+
+/* Home: sello grande, visible, pero separado del contenido. */
+.cbc-home-hero{position:relative!important;min-height:235px;padding-right:245px!important}
+.cbc-home-emblem{
+  position:absolute;right:4px;top:-10px;width:205px;min-height:205px;
+  display:grid;place-items:center;text-align:center;padding:14px;
+  border:1px solid var(--border);border-radius:34px;background:var(--surface2)!important;
+  box-shadow:0 16px 38px rgba(15,31,83,.08);
+}
+.cbc-home-emblem img{width:158px;height:158px;object-fit:contain;display:block;border-radius:50%}
+.cbc-home-emblem b{display:block;margin-top:5px;color:var(--brand-navy);font-size:13px;letter-spacing:.03em}
+:root[data-theme="dark"] .cbc-home-emblem b{color:#fff}
+.cbc-home-emblem small{display:block;color:var(--muted);font-size:10px;letter-spacing:.11em;text-transform:uppercase;font-weight:900;margin-top:2px}
+
+/* Marca extra en la tarjeta de Química. */
+.subject{position:relative!important}
+.cbc-subject-seal{position:absolute;right:48px;top:15px;width:34px;height:34px;object-fit:contain;border-radius:50%;opacity:.9}
+
+/* Sidebar: un segundo sello decorativo sutil para darle identidad incluso al hacer scroll. */
+.cbc-side-decor{margin:auto 12px 9px;padding:11px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;color:var(--muted)}
+.cbc-side-decor img{width:48px;height:48px;object-fit:contain;border-radius:50%;opacity:.55}
+.cbc-side-decor span{font-size:10px;line-height:1.35;letter-spacing:.08em;text-transform:uppercase;font-weight:900}
+
+/* Bienvenida / login. */
+.welcomeCard{position:relative!important;overflow:hidden!important}
+.welcomeCard>.brand{padding:12px 14px;border:1px solid var(--border);border-radius:20px;background:var(--surface2)!important;width:max-content;max-width:100%}
+.welcomeCard>.brand img{width:78px!important;height:78px!important;min-width:78px!important}
+.cbc-welcome-seal{position:absolute;right:28px;top:24px;width:150px;height:150px;object-fit:contain;border-radius:50%;opacity:.13;pointer-events:none}
+
+/* Las unidades usan el logo como motivo decorativo en lugar del átomo genérico. */
+.masterHero .heroMotif{display:none!important}
+.cbc-unit-logo{position:absolute!important;right:42px;top:46px;width:142px;height:142px;object-fit:contain;border-radius:50%;opacity:.15;pointer-events:none}
+:root[data-theme="dark"] .cbc-unit-logo{opacity:.2}
+
+/* Configuración y tabla periódica también llevan la identidad. */
+.cbc-settings-logo{width:76px;height:76px;object-fit:contain;border-radius:50%;display:block;margin:0 0 16px;border:1px solid var(--border)}
+.cbc-periodic-brand{display:flex;gap:13px;align-items:center}
+.cbc-periodic-brand>img{width:52px;height:52px;object-fit:contain;border-radius:50%;flex:0 0 auto}
+.periodicFab{display:flex!important;align-items:center!important;gap:8px!important}
+.periodicFab img{width:27px;height:27px;object-fit:contain;border-radius:50%;background:#fff}
+
+/* Loading y estado de error: logo grande y nítido. */
+.loading img{width:112px!important;height:112px!important;object-fit:contain!important;border-radius:50%;box-shadow:0 0 0 4px var(--surface),0 0 0 7px color-mix(in srgb,var(--brand-sky) 55%,var(--border))}
+
+@media(max-width:900px){
+  .cbc-home-hero{padding-right:190px!important;min-height:200px}
+  .cbc-home-emblem{width:160px;min-height:160px;border-radius:26px}
+  .cbc-home-emblem img{width:116px;height:116px}
+  .cbc-home-emblem b{font-size:11px}
+  .cbc-unit-logo{width:110px;height:110px;right:25px;top:40px}
+}
+@media(max-width:680px){
+  .brand img{width:58px!important;height:58px!important;min-width:58px!important}
+  .sideHead{min-height:86px!important}
+  .cbc-top-logo{width:34px;height:34px}
+  .cbc-home-hero{padding-right:0!important;padding-top:178px!important;text-align:center;min-height:0}
+  .cbc-home-emblem{right:50%;transform:translateX(50%);top:0;width:150px;min-height:150px;padding:10px}
+  .cbc-home-emblem img{width:110px;height:110px}
+  .cbc-subject-seal{right:45px;top:13px;width:30px;height:30px}
+  .cbc-welcome-seal{display:none}
+  .welcomeCard>.brand{width:100%;justify-content:flex-start}
+  .welcomeCard>.brand img{width:68px!important;height:68px!important;min-width:68px!important}
+  .cbc-unit-logo{width:78px;height:78px;right:18px;top:28px;opacity:.12}
+  .cbc-periodic-brand>img{width:44px;height:44px}
+}
