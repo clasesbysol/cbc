@@ -1,0 +1,130 @@
+:root{
+  --brand-sky:#75bef5;
+  --brand-navy:#0f1f53;
+  --brand-gold:#fdbb2b;
+  --bg:#ffffff!important;
+  --surface:#ffffff!important;
+  --surface2:#f4f8ff!important;
+  --text:#0f1f53!important;
+  --muted:#69758f!important;
+  --border:#d9e5f2!important;
+  --accent:#0f1f53!important;
+  --shadow:0 16px 42px rgba(15,31,83,.10)!important;
+  background:#ffffff!important;
+}
+:root[data-theme="dark"]{
+  --bg:#0f1f53!important;
+  --surface:#14285f!important;
+  --surface2:#1b3474!important;
+  --text:#f8fbff!important;
+  --muted:#bfd3ee!important;
+  --border:#31518a!important;
+  --accent:#75bef5!important;
+  --shadow:0 18px 44px rgba(0,0,0,.25)!important;
+  background:#0f1f53!important;
+}
+
+/* CBC x SOLved: identidad plana, sin degradados ni fondos decorativos. */
+*,*::before,*::after{background-image:none!important}
+html,body,#app,.appShell,.main,.content{background-color:var(--bg)!important}
+body::before,.masterHero::before{display:none!important}
+.sidebar,.top,.welcomeCard{backdrop-filter:none!important;background:var(--surface)!important}
+.welcomeCard,.subject,.unitCard,.studyFlow .studySection,.studyLayout>.unitToc,.adminEditor,.adminList,.searchModal,.themeModal{box-shadow:var(--shadow)!important}
+
+.brand{gap:12px}
+.brand img{width:56px!important;height:56px!important;border-radius:50%;object-fit:cover;flex:0 0 auto}
+.brand b{color:var(--brand-navy);font-weight:900;letter-spacing:-.035em}
+:root[data-theme="dark"] .brand b{color:#fff}
+.brand small{color:var(--muted)!important}
+
+.primary{background:var(--brand-navy)!important;color:#fff!important;border-color:var(--brand-navy)!important}
+:root[data-theme="dark"] .primary{background:var(--brand-sky)!important;color:var(--brand-navy)!important;border-color:var(--brand-sky)!important}
+.ghost{background:var(--surface2)!important;color:var(--accent)!important}
+.secondary{background:var(--surface)!important}
+.eyebrow,.subject small,.unitCard>span,.studyFlow .studySection>header small,.sectionHeading>span,.simTitle>span{color:var(--accent)!important}
+
+/* Menú principal: sólo Inicio y Configuración. El índice original queda oculto para conservar la navegación interna. */
+.sidebar nav{gap:7px}
+.sidebar nav button{font-size:15px}
+.sidebar nav button[data-v]:not([data-v="subjects"]){display:none!important}
+.sidebar nav button[data-v="subjects"] span{font-size:18px}
+.cbc-settings-button{border:0;background:transparent;text-align:left;padding:11px 12px;border-radius:11px;color:var(--muted);font-weight:760;display:flex;align-items:center;gap:10px;width:100%}
+.cbc-settings-button:hover{background:var(--surface2);color:var(--accent)}
+.unitIndex{display:none!important}
+.cbc-recent{margin:22px 0 12px;min-height:0}
+.cbc-recent .sideLabel{padding-bottom:5px}
+.cbc-recent-subject{display:block;padding:0 12px 8px;font-size:10px;letter-spacing:.12em;font-weight:900;color:var(--brand-sky);text-transform:uppercase}
+.cbc-recent-list{display:grid;gap:4px;max-height:42vh;overflow:auto}
+.cbc-recent-item{width:100%;border:0;background:transparent;border-radius:10px;display:grid;grid-template-columns:28px 1fr;gap:8px;align-items:center;text-align:left;padding:8px 10px;color:var(--muted);font-weight:780}
+.cbc-recent-item:hover{background:var(--surface2);color:var(--text)}
+.cbc-recent-item span{width:25px;height:25px;border-radius:8px;background:var(--surface2);display:grid;place-items:center;font-size:10px;font-weight:900;color:var(--accent)}
+.cbc-recent-empty{padding:4px 12px 12px;color:var(--muted);font-size:12px;line-height:1.45}
+.sideBottom [data-a="theme"]{display:none!important}
+
+/* Configuración: paleta fija del nuevo logo. */
+.themeModal .colorField,.themeModal .swatches{display:none!important}
+.themeModal{background:var(--surface)!important}
+.themeModal>p{margin-top:16px!important}
+.cbc-config-note{margin:16px 0 0;padding:13px 14px;border:1px solid var(--border);border-radius:12px;background:var(--surface2);color:var(--muted);font-size:12px;line-height:1.5}
+.cbc-admin-entry{width:100%;margin-top:14px}
+
+/* Home y tarjetas */
+.subject,.unitCard,.masterHero,.unitMap,.studyDeck,.reviewStrip,.inlineSimulator,.theorySupplement,.quickGuide,.historyHero,.ancientStop,.historyEvent>section{background-color:var(--surface)!important}
+.subjectIcon,.bigIcon,.pill,.status{background:var(--surface2)!important}
+:root[data-theme="dark"] .subjectIcon,:root[data-theme="dark"] .bigIcon,:root[data-theme="dark"] .pill,:root[data-theme="dark"] .status{background:#1b3474!important}
+
+/* Tabla periódica: teoría compacta y datos del elemento en modal central. */
+.periodicFab{background:var(--brand-navy)!important;color:#fff!important;box-shadow:0 12px 30px rgba(15,31,83,.22)!important}
+:root[data-theme="dark"] .periodicFab{background:var(--brand-sky)!important;color:var(--brand-navy)!important}
+.periodicLayer{background:rgba(8,18,48,.76)!important}
+.periodicModal{background:var(--surface)!important}
+.periodicModal>header{background:var(--surface)!important}
+.periodicClose{background:var(--brand-navy)!important;color:#fff!important}
+:root[data-theme="dark"] .periodicClose{background:var(--brand-sky)!important;color:var(--brand-navy)!important}
+.periodicLearn{display:block!important;padding:12px 22px 4px!important}
+.periodicLearn details{background:var(--surface2)!important;border:1px solid var(--border)!important;border-radius:14px!important;padding:0!important}
+.periodicLearn summary{padding:13px 15px!important;font-weight:900!important;cursor:pointer}
+.cbc-periodic-theory-body{padding:0 16px 16px;border-top:1px solid var(--border)}
+.cbc-periodic-theory-body h4{margin:16px 0 6px;font-size:14px;color:var(--accent)}
+.cbc-periodic-theory-body p{margin:0;color:var(--text);font-size:13px;line-height:1.62}
+.cbc-periodic-theory-body ul{margin:8px 0 0;padding-left:20px;color:var(--text);font-size:13px;line-height:1.58}
+.elementDetail{display:none!important}
+.elementCell{background:color-mix(in srgb,var(--brand-sky) 13%,var(--surface))!important}
+.cat-noble-gas{background:color-mix(in srgb,var(--brand-sky) 38%,var(--surface))!important}
+.cat-halogen{background:color-mix(in srgb,var(--brand-gold) 31%,var(--surface))!important}
+.cat-alkali-metal{background:color-mix(in srgb,var(--brand-sky) 28%,var(--surface))!important}
+.cat-alkaline-earth-metal{background:color-mix(in srgb,var(--brand-gold) 18%,var(--surface))!important}
+.cat-transition-metal{background:color-mix(in srgb,var(--brand-navy) 10%,var(--surface))!important}
+.cat-lanthanide,.cat-actinide{background:color-mix(in srgb,var(--brand-sky) 20%,var(--surface))!important}
+:root[data-theme="dark"] .elementCell{background:#1b3474!important}
+:root[data-theme="dark"] .cat-noble-gas{background:#25488f!important}
+:root[data-theme="dark"] .cat-halogen{background:#5a4c25!important}
+:root[data-theme="dark"] .cat-alkali-metal{background:#24447f!important}
+:root[data-theme="dark"] .cat-alkaline-earth-metal{background:#4a432a!important}
+:root[data-theme="dark"] .cat-transition-metal{background:#23396b!important}
+:root[data-theme="dark"] .cat-lanthanide,:root[data-theme="dark"] .cat-actinide{background:#204071!important}
+
+.cbc-element-float-layer{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:20px;background:rgba(6,13,38,.68)!important}
+.cbc-element-float{position:relative;width:min(820px,100%);max-height:min(82vh,760px);overflow:auto;border:1px solid var(--border);border-radius:24px;background:var(--surface)!important;box-shadow:0 28px 80px rgba(0,0,0,.34);padding:24px}
+.cbc-element-close{position:sticky;top:0;float:right;z-index:2;width:42px;height:42px;border:1px solid var(--border);border-radius:12px;background:var(--surface2);color:var(--text);font-size:22px;font-weight:900}
+.cbc-element-float .elementIdentity{padding-right:52px}
+.cbc-element-float .elementIdentity>strong{background:var(--brand-navy)!important;color:#fff!important}
+:root[data-theme="dark"] .cbc-element-float .elementIdentity>strong{background:var(--brand-sky)!important;color:var(--brand-navy)!important}
+.cbc-element-float .propertyGrid{grid-template-columns:repeat(3,minmax(0,1fr));margin-top:20px}
+.cbc-element-float .propertyGrid>div{background:var(--surface2)!important}
+
+/* Sustituye los pocos fondos científicos que dependían de gradientes por colores planos. */
+.solutionCup>[data-concentration-fill]{background:var(--brand-sky)!important}
+.electronCloud{background:color-mix(in srgb,var(--brand-sky) 14%,transparent)!important}
+.trendViz i{background:var(--brand-sky)!important}
+.historyTimeline:before{background:var(--brand-sky)!important}
+
+@media(max-width:760px){
+  .brand img{width:50px!important;height:50px!important}
+  .cbc-recent-list{max-height:34vh}
+  .periodicLearn{padding:10px 12px 2px!important}
+  .cbc-element-float-layer{padding:12px}
+  .cbc-element-float{border-radius:19px;padding:18px;max-height:86vh}
+  .cbc-element-float .propertyGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:480px){.cbc-element-float .propertyGrid{grid-template-columns:1fr}}
