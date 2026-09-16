@@ -1,0 +1,140 @@
+/* U3/U4 — rediseño didáctico: lectura rápida, contraste y resoluciones compactas */
+
+/* Contraste fijo para etiquetas/burbujas: nunca texto del mismo color que el fondo. */
+.studyFlow .studySection>header small,
+.studyFlow .studySection>header .eyebrow,
+.exerciseHead>span,
+.sectionHeading>span,
+.studyDeck>header span,
+.quickGuide>span{
+  background:#123f68!important;
+  color:#fff!important;
+  border-color:#123f68!important;
+  text-shadow:none!important;
+}
+:root[data-theme="dark"] .studyFlow .studySection>header small,
+:root[data-theme="dark"] .exerciseHead>span,
+:root[data-theme="dark"] .sectionHeading>span{
+  background:#d9efff!important;
+  color:#0c2b47!important;
+  border-color:#d9efff!important;
+}
+
+/* La vieja “Brújula del tema” desaparece. Se conserva solamente el desafío integrado. */
+.quickGuide{
+  margin:18px 0 24px!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+.quickGuide>span,.quickGuide>h3,.quickGuide>.guideGrid{display:none!important}
+.quickGuide>details{
+  margin:0!important;
+  border:1px solid #cbd9e8!important;
+  border-left:6px solid #7652aa!important;
+  border-radius:16px!important;
+  background:#fbfaff!important;
+  overflow:hidden;
+}
+:root[data-theme="dark"] .quickGuide>details{background:#171c2a!important;border-color:#38445f!important}
+.quickGuide>details>summary{padding:14px 17px!important;color:#5b3d8d!important;font-weight:900!important}
+:root[data-theme="dark"] .quickGuide>details>summary{color:#d9c9ff!important}
+.quickGuide>details>p{padding:0 17px 16px!important;margin:0!important}
+
+/* Mini-resumen al inicio de cada capítulo. */
+.chapterOverview{
+  margin:0 0 22px;
+  padding:17px 18px 18px;
+  border:1px solid #d7e5ee;
+  border-radius:18px;
+  background:#f8fbfd;
+}
+:root[data-theme="dark"] .chapterOverview{background:#111c22;border-color:#29414d}
+.chapterOverview>h3{margin:0 0 12px!important;font-size:1rem!important;letter-spacing:.01em!important;color:#143a37!important}
+:root[data-theme="dark"] .chapterOverview>h3{color:#eff8f7!important}
+.chapterOverview>h3:before{display:none!important}
+.conceptPath{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.conceptPath .conceptKey{
+  display:inline-flex;align-items:center;min-height:34px;padding:7px 11px;
+  border-radius:999px;background:#e8f3fb;color:#123f68;border:1px solid #c8dceb;
+  font-weight:900;font-size:.84rem;line-height:1.15;
+}
+.conceptPath .conceptArrow{font-weight:1000;color:#64748b;font-size:1rem}
+:root[data-theme="dark"] .conceptPath .conceptKey{background:#173449;color:#eaf7ff;border-color:#315a72}
+:root[data-theme="dark"] .conceptPath .conceptArrow{color:#9bb5c6}
+.chapterOverview .overviewNote{margin:11px 0 0!important;font-size:.88rem;line-height:1.5;color:#5f7473!important}
+
+/* Contenido breve, visual y sin títulos “de IA”. */
+.conceptIntro{margin:18px 0 24px;padding:0}
+.conceptIntro h3{font-size:1.32rem!important;margin:20px 0 8px!important}
+.definitionCard{
+  margin:12px 0;padding:15px 17px;border-left:5px solid #2563a8;border-radius:0 14px 14px 0;
+  background:#f2f7fc;
+}
+:root[data-theme="dark"] .definitionCard{background:#122330}
+.definitionCard p{margin:0!important}
+.inlineStudyVisual{margin:20px 0 24px}
+.inlineStudyVisual img{display:block;width:100%;max-height:520px;object-fit:contain;background:#fff;border:1px solid #dbe7ec;border-radius:18px;padding:8px}
+.inlineStudyVisual figcaption{margin-top:7px;font-size:.78rem;color:#6b7f7d;text-align:center}
+
+/* Criterio de electronegatividad. */
+.enScale{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0}
+.enScale>div{padding:15px;border-radius:15px;border:1px solid #d6e3ea;background:#fff}
+.enScale b{display:block;font-size:1.05rem;margin-bottom:5px;color:#123f68}
+.enScale span{display:block;font-size:.86rem;line-height:1.35;color:#5f7473}
+.enScale .polar{border-top:5px solid #7652aa}.enScale .nonpolar{border-top:5px solid #0f9f9a}.enScale .ionic{border-top:5px solid #d65f45}
+
+/* Reglas de NOX: tarjetas en lugar de renglones sueltos. */
+.noxRules{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:16px 0 21px}
+.noxRule{padding:13px 14px;border:1px solid #d6e3ea;border-radius:14px;background:#fff}
+.noxRule b{display:block;color:#123f68;margin-bottom:3px}.noxRule span{font-size:.86rem;color:#627775}
+:root[data-theme="dark"] .noxRule,.enScale>div{background:#111c22;border-color:#29414d}
+:root[data-theme="dark"] .noxRule b,.enScale b{color:#d9efff}
+
+/* Biblioteca de Lewis. */
+.lewisLibraryIntro{margin:24px 0 12px}
+.lewisLibraryIntro h3{margin-bottom:6px!important}
+.lewisLibraryIntro p{margin-top:0!important}
+.lewisGroup{margin:12px 0;border:1px solid #d7e5ee;border-radius:16px;overflow:hidden;background:#fff}
+:root[data-theme="dark"] .lewisGroup{background:#111c22;border-color:#29414d}
+.lewisGroup>summary{padding:14px 16px;cursor:pointer;font-weight:900;color:#123f68;background:#f3f8fc}
+:root[data-theme="dark"] .lewisGroup>summary{background:#152631;color:#d9efff}
+.lewisGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:12px}
+.lewisCard{padding:13px 14px;border:1px solid #dce7eb;border-radius:13px;background:#fbfdfd}
+:root[data-theme="dark"] .lewisCard{background:#14201f;border-color:#2c4441}
+.lewisCard>header{display:flex;justify-content:space-between;gap:9px;align-items:baseline;margin-bottom:6px}
+.lewisCard>header b{font-size:1.08rem;color:#123f68}.lewisCard>header small{font-size:.73rem;color:#6c817f}
+:root[data-theme="dark"] .lewisCard>header b{color:#d9efff}
+.lewisCard p{margin:0!important;font-size:.87rem!important;line-height:1.5!important}
+.lewisStructure{font-family:"Nunito",system-ui,sans-serif;font-weight:900;color:#5b3d8d}
+
+/* Resoluciones: Planteo → Desarrollo → Resultado. */
+.solutionCard>summary,.integratedSolution>summary{font-weight:900!important}
+.solutionBlock{margin:12px 0;padding:15px 17px;border-radius:15px;border:1px solid #d8e4ea;background:#fff}
+:root[data-theme="dark"] .solutionBlock{background:#111c22;border-color:#29414d}
+.solutionBlock h4{margin:0 0 9px!important;font-size:1rem!important}
+.solutionPlan{border-left:6px solid #2563a8;background:#f4f8fc}
+.solutionDevelopment{border-left:6px solid #7652aa;background:#fbf9ff}
+:root[data-theme="dark"] .solutionPlan{background:#122330}.solutionDevelopment{ }
+:root[data-theme="dark"] .solutionDevelopment{background:#181529}
+.solutionDevelopment .developmentItem{padding:8px 0;border-top:1px solid #e3e9ef}
+.solutionDevelopment .developmentItem:first-of-type{border-top:0;padding-top:0}
+.solutionDevelopment .developmentItem:last-child{padding-bottom:0}
+.solutionDevelopment .developmentItem h5{margin:0 0 4px;font-size:.92rem;color:#5b3d8d}
+.solutionDevelopment .developmentItem p{margin:0!important}
+.solutionSteps>.solutionStep,.integratedSolutionBody>.solutionStep{display:none!important}
+.finalAnswer{margin-top:12px!important}
+.finalAnswer>b:first-child,.finalAnswer>strong:first-child{display:block;margin-bottom:6px}
+
+/* Las fórmulas del Planteo tienen presencia visual. */
+.solutionPlan .katex-display,.solutionPlan .formulaBlock,.solutionPlan code{margin:8px 0}
+.solutionPlan strong{color:#174f83}
+:root[data-theme="dark"] .solutionPlan strong{color:#9fd1ff}
+
+@media(max-width:720px){
+  .conceptPath{gap:5px}.conceptPath .conceptKey{font-size:.78rem;padding:6px 9px}
+  .enScale,.noxRules,.lewisGrid{grid-template-columns:1fr}
+  .chapterOverview{padding:14px}
+}
