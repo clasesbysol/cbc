@@ -134,3 +134,11 @@ body::before,.masterHero::before{display:none!important}
 .welcome{--surface:#fff!important;--surface2:#f4f8ff!important;--text:var(--brand-navy)!important;--muted:#69758f!important;--border:#d9e5f2!important;--accent:var(--brand-navy)!important}
 :root .welcome .primary{background:var(--brand-navy)!important;color:#fff!important;border-color:var(--brand-navy)!important}
 .welcome .brand b,.welcome .eyebrow,.welcomeHero p{color:var(--brand-navy)!important}
+
+/* Parciales como nivel propio entre las unidades 7 y 8. */
+.examIndexCard{border-color:var(--accent, #7b70dd)}
+.examSourceGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;margin:1.5rem 0 2rem}
+.examSourceGrid a{display:flex;justify-content:space-between;align-items:center;padding:1.25rem 1.5rem;border:1px solid var(--line,#dcdfe7);border-radius:1rem;background:var(--card,#fff);color:inherit;text-decoration:none}
+.examSourceGrid span{font-weight:750}.examSourceGrid small{opacity:.7}
+.examBook{margin-bottom:2rem}.examSourceLink{margin:.6rem 0}.examSourceLink a{text-decoration:underline}
+@media(max-width:600px){.examSourceGrid{grid-template-columns:1fr}}
