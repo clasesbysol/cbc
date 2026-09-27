@@ -142,3 +142,4 @@ body::before,.masterHero::before{display:none!important}
 .examSourceGrid span{font-weight:750}.examSourceGrid small{opacity:.7}
 .examBook{margin-bottom:2rem}.examSourceLink{margin:.6rem 0}.examSourceLink a{text-decoration:underline}
 @media(max-width:600px){.examSourceGrid{grid-template-columns:1fr}}
+.u6Step>div,.u6Subsolution>div{min-width:0}
