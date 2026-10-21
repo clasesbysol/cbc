@@ -33,6 +33,13 @@
   <link rel="stylesheet" href="./cbc-branding.css?v=0.15.0" />
   <link rel="stylesheet" href="./u34-redesign.css?v=0.17.0" />
   <title>CBC x SOLved</title>
+  <style>
+    .exerciseStatement,.solutionSteps,.didacticText{overflow-wrap:anywhere}
+    .exerciseStatement .katex-display,.solutionSteps .katex-display,.didacticText .katex-display{max-width:100%;overflow-x:auto;overflow-y:hidden;padding:.4rem 0}
+    .exerciseStatement .formula,.solutionSteps .formula{display:block;max-width:100%;overflow-x:auto;white-space:normal}
+    .exerciseStatement .mathFallback,.solutionSteps .mathFallback{display:inline-block;white-space:pre-wrap;overflow-wrap:anywhere;font-family:ui-monospace,monospace}
+    .exerciseStatement table,.solutionSteps table{display:block;max-width:100%;overflow-x:auto}
+  </style>
 </head>
 <body>
   <div id="app" class="loading"><img src="./cbc-logo.png?v=0.15.0" alt="CBC x SOLved" /> Cargando CBC x SOLved…</div>
@@ -62,9 +69,10 @@
 
   <script src="./config.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/mhchem.min.js" crossorigin="anonymous"></script>
   <script src="./parciales-extra.js?v=0.25.0"></script>
   <script src="./series-8-9-extra.js?v=0.26.0"></script>
-  <script type="module" src="./app.js?v=0.27.0"></script>
+  <script type="module" src="./app.js?v=0.27.1"></script>
   <script defer src="./u34-integrated-solutions.js?v=0.16.1"></script>
   <script defer src="./u34-redesign.js?v=0.17.0"></script>
   <script defer src="./u3-lewis-library.js?v=0.17.0"></script>

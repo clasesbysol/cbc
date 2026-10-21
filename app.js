@@ -277,7 +277,18 @@ function studySimulator(s){
 }
 function fallbackMath(latex){return latex.replace(/\\qquad/g,' · ').replace(/\\Rightarrow/g,'⇒').replace(/\\rightarrow/g,'→').replace(/\\Delta/g,'Δ').replace(/\\nu/g,'ν').replace(/\\times/g,'×').replace(/[{}]/g,'')}
 function mathNode(latex,display){const tag=display?'div':'span';return `<${tag} class="${display?'formulaBlock':'mathInline'}" data-latex="${encodeURIComponent(latex)}" data-display="${display}">${esc(fallbackMath(latex))}</${tag}>`}
-function formatStudyHtml(raw){return String(raw||'').replace(/<p>\[([\s\S]*?)\]<\/p>/g,(_,m)=>mathNode(m,true)).replace(/\(([^<>]*?(?:\\[A-Za-z]+|\^[{+\-\dA-Za-z]|_[{A-Za-z\d])[^<>]*?)\)/g,(_,m)=>mathNode(m,false))}
+function formatStudyHtml(raw){
+  // Parse only explicit math delimiters, never ordinary parentheses in an exercise.
+  // Supports LaTeX from course sections and the exercise/solution database.
+  return String(raw||'')
+    .replace(/<p>\s*\\\[([\s\S]*?)\\\]\s*<\/p>/gi,(_,m)=>mathNode(m.trim(),true))
+    .replace(/\\\[([\s\S]*?)\\\]/g,(_,m)=>mathNode(m.trim(),true))
+    .replace(/\$\$([\s\S]*?)\$\$/g,(_,m)=>mathNode(m.trim(),true))
+    .replace(/\\\(([\s\S]*?)\\\)/g,(_,m)=>mathNode(m.trim(),false))
+    .replace(/(^|[^\$])\$([^\$\n]+)\$(?!\$)/g,(_,prefix,m)=>prefix+mathNode(m.trim(),false))
+    // Older content used plain (...) around TeX expressions, but never around prose.
+    .replace(/\(([^<>]*?(?:\\[A-Za-z]+|\^[{+\-\dA-Za-z]|_[{A-Za-z\d])[^<>]*?)\)/g,(_,m)=>mathNode(m,false));
+}
 function readableStudyHtml(s){const box=document.createElement('div');box.className='didacticText';box.innerHTML=formatStudyHtml(s.html).replace(/spanclass/gi,'');box.querySelector('p:not(.methodStep p)')?.classList.add('sectionLead');box.querySelectorAll('p').forEach(p=>{const text=p.textContent.replace(/\s+/g,' ').trim();if(text.length<210||p.closest('li,td,th,details')||p.querySelector('strong,em,a,[data-latex]')){if(text.length>110)p.classList.add('airyText');return}const sentences=text.match(/[^.!?]+[.!?]+|[^.!?]+$/g)?.map(x=>x.trim()).filter(Boolean)||[];if(sentences.length<2){p.classList.add('airyText');return}const chunk=document.createElement('div');chunk.className='memoryChunk';chunk.innerHTML=`<p><strong>${esc(sentences[0])}</strong></p><ul>${sentences.slice(1).map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`;p.replaceWith(chunk)});box.querySelectorAll('.examTip').forEach(x=>x.setAttribute('role','note'));box.querySelectorAll('h2,h3,h4,strong').forEach(h=>{if(!/respuesta|resoluci.n|resultado|paso a paso|procedimiento/i.test(h.textContent))return;if(h.closest('details'))return;const details=document.createElement('details');details.className='deferredRead';const summary=document.createElement('summary');summary.textContent='Ver respuesta y resolución';details.append(summary);let next=h.nextSibling;details.append(h.cloneNode(true));while(next&&!/^H[234]$/.test(next.nodeName)){const current=next;next=next.nextSibling;details.append(current)}h.replaceWith(details)});return box.outerHTML}
 
 function theorySupplement(s){
@@ -290,7 +301,24 @@ function theorySupplement(s){
  if(unit===2&&/propiedades peri.dicas|carga nuclear efectiva/i.test(`${s.title} ${plain(s.html)}`))return `<aside class="theorySupplement"><h3>Fundamento de las tendencias</h3><ul><li><b>A lo largo de un período:</b> aumenta Z, los electrones se agregan a la misma capa y el apantallamiento cambia poco. Aumenta Z<sub>ef</sub>, la atracción núcleo–electrón crece, el radio disminuye y suelen aumentar ionización y electronegatividad.</li><li><b>Al bajar en un grupo:</b> aparece una capa nueva, aumentan distancia y apantallamiento. El radio crece; suele disminuir la energía de ionización y la electronegatividad.</li><li><b>Repulsión electrónica:</b> los electrones se repelen y los internos apantallan parcialmente al núcleo; por eso un electrón externo no siente toda la carga Z.</li><li><b>Afinidad electrónica:</b> depende del balance entre atracción nuclear, tamaño, repulsión y estabilidad de configuraciones; presenta más excepciones que el radio.</li></ul></aside>`;
  return''
 }
-function renderMath(){document.querySelectorAll('[data-latex]').forEach(el=>{if(el.dataset.rendered||!window.katex)return;window.katex.render(decodeURIComponent(el.dataset.latex),el,{throwOnError:false,displayMode:el.dataset.display==='true',output:'htmlAndMathml'});el.dataset.rendered='true'})}
+function renderMath(){
+  document.querySelectorAll('[data-latex]').forEach(el=>{
+    if(el.dataset.rendered||!window.katex)return;
+    let latex;
+    try{latex=decodeURIComponent(el.dataset.latex||'')}catch(_){latex=el.dataset.latex||''}
+    // Repair double-escaped TeX commands present in legacy U10 solution rows.
+    latex=latex.replace(/\\\\(?=[A-Za-z,;!%])/g,'\\');
+    try{
+      window.katex.render(latex,el,{throwOnError:true,strict:'ignore',trust:false,displayMode:el.dataset.display==='true',output:'htmlAndMathml'});
+    }catch(err){
+      // Never leave an empty formula or show raw HTML when a legacy expression fails.
+      el.textContent=fallbackMath(latex);
+      el.classList.add('mathFallback');
+      console.warn('CBCxSOLved: fórmula no renderizada',err.message);
+    }
+    el.dataset.rendered='true';
+  });
+}
 function simulatorWidget(s){const t=s.title.toLowerCase();if(t.includes('recipiente')||t.includes('gases'))return `<div class="simLab" data-sim="gas"><label>Moles <input type="range" min="1" max="10" value="2" step=".5" data-sim-input="n"></label><label>Temperatura (K) <input type="range" min="200" max="600" value="300" data-sim-input="t"></label><label>Volumen (L) <input type="range" min="2" max="30" value="10" data-sim-input="v"></label><output>Presión: <b data-sim-output></b></output></div>`;if(t.includes('dilución'))return `<div class="simLab" data-sim="dilution"><label>C₁ (M) <input type="number" value="1" step=".1" data-sim-input="c1"></label><label>V₁ (mL) <input type="number" value="100" data-sim-input="v1"></label><label>V₂ (mL) <input type="number" value="500" data-sim-input="v2"></label><output>C₂: <b data-sim-output></b></output></div>`;if(t.includes('pH')||t.includes('ácido'))return `<div class="simLab" data-sim="ph"><label>Tipo <select data-sim-input="kind"><option value="acid">Ácido fuerte</option><option value="base">Base fuerte</option></select></label><label>Concentración (M) <input type="number" value="0.01" min="0.0000001" step=".001" data-sim-input="c"></label><output>pH: <b data-sim-output></b></output></div>`;if(t.includes('choques')||t.includes('velocidad'))return `<div class="simLab" data-sim="rate"><label>Concentración relativa <input type="range" min="1" max="5" value="1" data-sim-input="c"></label><label>Temperatura relativa <input type="range" min="1" max="4" value="1" data-sim-input="t"></label><output>Choques eficaces relativos: <b data-sim-output></b></output></div>`;return ''}
 function updateSimulator(lab){const val=k=>Number(lab.querySelector(`[data-sim-input="${k}"]`)?.value||0),out=lab.querySelector('[data-sim-output]');if(!out)return;if(lab.dataset.sim==='gas')out.textContent=`${(val('n')*.082057*val('t')/val('v')).toFixed(2)} atm`;if(lab.dataset.sim==='dilution')out.textContent=`${(val('c1')*val('v1')/val('v2')).toFixed(3)} M`;if(lab.dataset.sim==='rate')out.textContent=`${(val('c')**2*val('t')).toFixed(1)}×`;if(lab.dataset.sim==='ph'){const c=Math.max(val('c'),1e-14),kind=lab.querySelector('[data-sim-input="kind"]').value;out.textContent=(kind==='acid'?-Math.log10(c):14+Math.log10(c)).toFixed(2)}}
 function drawParticles(lab,state='solid'){
