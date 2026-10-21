@@ -35,17 +35,51 @@ async function loadAdmin(){if(!sb||!isAdmin())return;users=(await sb.from('acces
 
 function expiryFromMode(){if(durationMode==='forever')return null;let d=new Date();if(durationMode==='custom'){if(!customDate)return undefined;d=new Date(`${customDate}T23:59:59`);return d.toISOString()}const months=Number(durationMode[0]);d.setMonth(d.getMonth()+months);d.setHours(23,59,59,999);return d.toISOString()}
 function draftGrantsFromForm(){const out=[];document.querySelectorAll('[data-full-unit]:checked').forEach(x=>out.push({unit_no:Number(x.dataset.fullUnit),grant_type:'unit',grant_key:'*'}));document.querySelectorAll('[data-grant-section]:checked').forEach(x=>{const [u,t,k]=x.dataset.grantSection.split('|');if(!document.querySelector(`[data-full-unit="${u}"]`)?.checked)out.push({unit_no:Number(u),grant_type:t,grant_key:k})});return out}
+let savingAccess=false;
 async function saveAccess(){
-  const email=document.querySelector('#accessEmail')?.value.trim().toLowerCase();if(!email)return;
-  const expiry=expiryFromMode();if(durationMode==='custom'&&expiry===undefined){msg='Elegí una fecha de vencimiento.';render();return}
+  if(savingAccess)return;
+  const email=document.querySelector('#accessEmail')?.value.trim().toLowerCase();
+  if(!email){msg='Ingresá el correo del alumno.';render();return}
+  const expiry=expiryFromMode();
+  if(durationMode==='custom'&&expiry===undefined){msg='Elegí una fecha de vencimiento.';render();return}
   const grants=draftGrantsFromForm();
-  const starts=editing?.email===email&&durationMode==='keep'?editing.access_starts_at:new Date().toISOString();
-  const finalExpiry=durationMode==='keep'?editing?.access_expires_at??null:expiry;
-  const {error}=await sb.from('access_profiles').upsert({email,active:true,role:editing?.role==='admin'?'admin':'student',access_starts_at:starts,access_expires_at:finalExpiry},{onConflict:'email'});
-  if(error){msg=error.message;render();return}
-  await sb.from('access_grants').delete().eq('email',email);
-  if(grants.length){const rows=grants.map(g=>({email,subject:'chemistry',...g}));const e=(await sb.from('access_grants').insert(rows)).error;if(e){msg=e.message;render();return}}
-  editing=null;durationMode='1m';customDate='';await loadAdmin();render();
+  if(!grants.length){msg='Seleccioná al menos una unidad o sección antes de guardar.';render();return}
+  savingAccess=true;
+  const button=document.querySelector('[data-a="saveAccess"]');
+  if(button){button.disabled=true;button.textContent='Guardando accesos…'}
+  try{
+    if(!sb||!isAdmin())throw new Error('La sesión de administrador no está activa. Volvé a iniciar sesión.');
+    const starts=editing?.email===email&&durationMode==='keep'?editing.access_starts_at:new Date().toISOString();
+    const finalExpiry=durationMode==='keep'?editing?.access_expires_at??null:expiry;
+    const profileWrite=await sb.from('access_profiles').upsert({email,active:true,role:editing?.role==='admin'?'admin':'student',access_starts_at:starts,access_expires_at:finalExpiry},{onConflict:'email'}).select('email').single();
+    if(profileWrite.error)throw new Error('No se pudo guardar el alumno: '+profileWrite.error.message);
+    const rows=grants.map(g=>({email,subject:'chemistry',...g}));
+    const saved=await sb.from('access_grants').upsert(rows,{onConflict:'email,subject,unit_no,grant_type,grant_key'}).select('unit_no,grant_type,grant_key');
+    if(saved.error)throw new Error('No se pudieron guardar los permisos: '+saved.error.message);
+    const key=g=>[Number(g.unit_no),g.grant_type,g.grant_key].join('|');
+    const expected=new Set(grants.map(key));
+    const actual=new Set((saved.data||[]).map(key));
+    if([...expected].some(k=>!actual.has(k)))throw new Error('Supabase no confirmó todos los permisos. No se borraron los permisos anteriores.');
+    const previous=await sb.from('access_grants').select('unit_no,grant_type,grant_key').eq('email',email).eq('subject','chemistry');
+    if(previous.error)throw new Error('No se pudo verificar la lista de permisos: '+previous.error.message);
+    for(const old of previous.data||[]){
+      if(expected.has(key(old)))continue;
+      const removed=await sb.from('access_grants').delete().eq('email',email).eq('subject','chemistry').eq('unit_no',old.unit_no).eq('grant_type',old.grant_type).eq('grant_key',old.grant_key).select('grant_key');
+      if(removed.error)throw new Error('No se pudo actualizar un permiso anterior: '+removed.error.message);
+      if(!removed.data?.length)throw new Error('Supabase no confirmó la eliminación de un permiso anterior.');
+    }
+    const check=await sb.from('access_grants').select('unit_no,grant_type,grant_key').eq('email',email).eq('subject','chemistry');
+    if(check.error)throw new Error('No se pudo verificar el guardado: '+check.error.message);
+    const confirmed=new Set((check.data||[]).map(key));
+    if(confirmed.size!==expected.size||[...expected].some(k=>!confirmed.has(k)))throw new Error('Los permisos no coinciden con lo seleccionado. Revisá la configuración antes de continuar.');
+    await loadAdmin();
+    editing=null;durationMode='1m';customDate='';
+    msg='✓ Acceso guardado correctamente para '+email+' ('+confirmed.size+' permisos).';
+    render();
+  }catch(error){
+    msg='Error al guardar acceso: '+(error?.message||String(error));
+    render();
+  }finally{savingAccess=false}
 }
 async function toggleUser(email,active){await sb.from('access_profiles').update({active}).eq('email',email);await loadAdmin();render()}
 function editUser(email){editing=users.find(u=>u.email===email)||null;durationMode='keep';customDate='';render();setTimeout(()=>document.querySelector('#accessEmail')?.scrollIntoView({behavior:'smooth',block:'center'}),50)}
