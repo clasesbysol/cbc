@@ -69,3 +69,6 @@
 /* Consigna siempre visible: sólo la resolución se despliega. */
 .exerciseCard>.exerciseHead{padding:20px 20px 4px;display:grid;gap:2px}
 .exerciseCard>.exerciseBody{border-top:0}
+
+/* Unidad 13 */
+.ab13-card{border-radius:18px;overflow:hidden;margin-bottom:24px}.ab13-card .exerciseHead{padding:20px;background:linear-gradient(120deg,rgba(20,165,180,.14),rgba(240,190,65,.08))}.ab13-card .exerciseBody{padding:18px}.ab13-line{display:flex;gap:12px;align-items:flex-start;padding:12px;margin:9px 0;border-radius:12px;background:rgba(125,145,165,.09);line-height:1.7}.ab13-line p{margin:0;overflow-wrap:anywhere}.ab13-stepnum{font-size:12px;opacity:.6;font-weight:800}.ab13-reason{margin:18px 0;padding:18px;border-radius:15px;border:1px solid rgba(20,165,180,.4);background:rgba(20,165,180,.08)}.ab13-reason strong{display:block;margin-bottom:9px}.ab13-reason .katex-display{overflow-x:auto;padding:12px 0}.ab13-card .solutionSteps{line-height:1.7}@media(max-width:600px){.ab13-card .exerciseBody{padding:12px}.ab13-reason{padding:13px}}
