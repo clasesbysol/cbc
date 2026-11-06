@@ -221,8 +221,8 @@ function ab13Case(t){
 }
 function ab13Lines(raw){
  const d=document.createElement('div');d.innerHTML=String(raw||'');
- if(d.querySelector('table,[data-latex],.methodStep')||/\\\\\[|\\\\\(|\\$\\$/.test(raw))return formatStudyHtml(raw);
- const chunks=d.textContent.replace(/\\s+/g,' ').replace(/\\s+(Consigna:)/i,'|$1').split(/\\| +|(?<=[.!?])\\s+(?=[A-ZÁÉÍÓÚÑ])/).filter(Boolean);
+ if(d.querySelector('table,[data-latex],.methodStep')||String(raw).includes('\\[')||String(raw).includes('\\(')||String(raw).includes('$$'))return formatStudyHtml(raw);
+ const chunks=d.textContent.replace(/\s+/g,' ').replace(/\s+(Consigna:)/i,'|$1').split(/\| +|(?<=[.!?])\s+(?=[A-ZÁÉÍÓÚÑ])/).filter(Boolean);
  return chunks.map((p,i)=>'<div class="ab13-line"><span class="ab13-stepnum">'+(i+1)+'</span><p>'+esc(p.trim())+'</p></div>').join('');
 }
 function ab13Card(x,index){
